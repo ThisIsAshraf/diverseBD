@@ -1,0 +1,8 @@
+# Protect .env file from public access
+<Files .env>
+Order allow,deny
+Deny from all
+</Files>
+
+# Ensure default index page loads properly
+DirectoryIndex index.php

@@ -1,0 +1,1 @@
+<?php require __DIR__.'/app/bootstrap.php';if($_SERVER['REQUEST_METHOD']!=='POST')redirect('checkout.php');verify_csrf();unset($_SESSION['coupon_code']);flash('success','Coupon removed.');redirect('checkout.php');
