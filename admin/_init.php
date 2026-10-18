@@ -25,6 +25,7 @@ function admin_header(string $title): void
                 <a href="<?= e(url('admin/customers.php')) ?>">Customers</a>
                 <a href="<?= e(url('admin/contacts.php')) ?>">Contact messages</a>
                 <a href="<?= e(url('admin/settings.php')) ?>">Store branding</a>
+                <a href="<?= e(url('admin/theme.php')) ?>">Storefront Theme</a>
                 <a href="<?= e(url('admin/stock-logs.php')) ?>">Stock logs</a>
                 <a href="<?= e(url('admin/slides.php')) ?>">Hero Banner Slides</a>
                 <a href="<?= e(url('admin/social.php')) ?>">Social Media Feed</a>

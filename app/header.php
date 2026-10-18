@@ -13,6 +13,103 @@ $announcement = site_setting('announcement', 'New season, new essentials — fre
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($pageTitle) ?> | <?= e($storeName) ?></title>
     <link rel="stylesheet" href="<?= e(url('assets/style.css')) ?>">
+
+    <?php
+    $themePrimary  = site_setting('theme_primary_color', '#2c3e50');
+    $themeHeaderBg = site_setting('theme_header_bg', '#1a252f');
+    $themeAnnounceText = site_setting('theme_announcement_text', '#ffffff');
+    $themeBodyBg   = site_setting('theme_body_bg', '#f8f9fa');
+    $themeCardBg   = site_setting('theme_card_bg', '#ffffff');
+    $themeBorder   = site_setting('theme_border_color', '#e0e0e0');
+    ?>
+
+    <style type="text/css">
+        :root {
+            --accent: <?= e($themePrimary) ?>;
+            --line: <?= e($themeBorder) ?>;
+            --panel-bg: <?= e($themeCardBg) ?>;
+        }
+
+        body {
+            background-color: <?= e($themeBodyBg) ?> !important;
+        }
+
+        .announcement {
+            background-color: <?= e($themeHeaderBg) ?> !important;
+            color: <?= e($themeAnnounceText) ?> !important;
+        }
+
+        .button,
+        button:not(.secondary) {
+            background-color: <?= e($themePrimary) ?> !important;
+            border-color: <?= e($themePrimary) ?> !important;
+        }
+
+        .product-card,
+        .panel,
+        .trust-bar {
+            background-color: <?= e($themeCardBg) ?> !important;
+            border-color: <?= e($themeBorder) ?> !important;
+        }
+
+        .tag {
+            background-color: <?= e($themePrimary) ?> !important;
+        }
+    </style>
+
+    <?php
+    $themePrimary     = site_setting('theme_primary_color', '#2c3e50');
+    $themeHeaderBg    = site_setting('theme_header_bg', '#1a252f');
+    $themeAnnounceText = site_setting('theme_announcement_text', '#ffffff');
+    $themeBodyBg      = site_setting('theme_body_bg', '#f8f9fa');
+    $themeCardBg      = site_setting('theme_card_bg', '#ffffff');
+    $themeBorder      = site_setting('theme_border_color', '#e0e0e0');
+    $themeFooterBg    = site_setting('theme_footer_bg', '#111111');
+    $themeFooterText  = site_setting('theme_footer_text', '#ffffff');
+    ?>
+
+    <style type="text/css">
+        :root {
+            --accent: <?= e($themePrimary) ?>;
+            --line: <?= e($themeBorder) ?>;
+            --panel-bg: <?= e($themeCardBg) ?>;
+        }
+
+        body {
+            background-color: <?= e($themeBodyBg) ?> !important;
+        }
+
+        .announcement {
+            background-color: <?= e($themeHeaderBg) ?> !important;
+            color: <?= e($themeAnnounceText) ?> !important;
+        }
+
+        .button,
+        button:not(.secondary) {
+            background-color: <?= e($themePrimary) ?> !important;
+            border-color: <?= e($themePrimary) ?> !important;
+        }
+
+        .product-card,
+        .panel,
+        .trust-bar {
+            background-color: <?= e($themeCardBg) ?> !important;
+            border-color: <?= e($themeBorder) ?> !important;
+        }
+
+        .site-footer {
+            background-color: <?= e($themeFooterBg) ?> !important;
+            color: <?= e($themeFooterText) ?> !important;
+        }
+
+        .site-footer a,
+        .site-footer p,
+        .site-footer span {
+            color: <?= e($themeFooterText) ?> !important;
+            opacity: 0.9;
+        }
+    </style>
+
 </head>
 
 <body>
