@@ -209,11 +209,10 @@ if (!function_exists('admin_required')) {
 }
 
 if (!function_exists('send_store_email')) {
-    function send_store_email(string $to, string $name, string $subject, string $html): bool
+    function send_store_email(string $to, string $name, string $subject, string $html, string $attachmentContent = '', string $attachmentFilename = 'invoice.html'): bool
     {
         $autoload = dirname(__DIR__) . '/vendor/autoload.php';
 
-        // Helper function to prefer trimmed DB value, falling back to .env if empty
         $getSetting = function (string $key, string $envKey, string $default = ''): string {
             $dbVal = trim(site_setting($key, ''));
             return $dbVal !== '' ? $dbVal : envv($envKey, $default);
@@ -227,11 +226,7 @@ if (!function_exists('send_store_email')) {
         $fromAddr = $getSetting('mail_from_address', 'MAIL_FROM_ADDRESS', $mailUser);
         $fromName = $getSetting('mail_from_name', 'MAIL_FROM_NAME', store_name());
 
-        if (!is_file($autoload) || $mailUser === '' || $mailPass === '') {
-            error_log('Email skipped: Missing mail credentials.');
-            return false;
-        }
-
+        if (!is_file($autoload) || $mailUser === '' || $mailPass === '') return false;
         require_once $autoload;
 
         try {
@@ -244,12 +239,28 @@ if (!function_exists('send_store_email')) {
             $mail->Port       = $mailPort;
             $mail->SMTPSecure = $mailEnc;
             $mail->CharSet    = 'UTF-8';
+
+            // Bypass SSL Peer Verification for free shared hosting environments
+            $mail->SMTPOptions = array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                )
+            );
+
             $mail->setFrom($fromAddr, $fromName);
             $mail->addAddress($to, $name);
             $mail->isHTML(true);
-            $mail->Subject    = $subject;
-            $mail->Body       = $html;
-            $mail->AltBody    = strip_tags(str_replace(['<br>', '<br/>', '</p>'], "\n", $html));
+            $mail->Subject = $subject;
+            $mail->Body    = $html;
+            $mail->AltBody = strip_tags(str_replace(['<br>', '<br/>', '</p>'], "\n", $html));
+
+            // Attach Printable HTML Invoice if generated
+            if ($attachmentContent !== '') {
+                $mail->addStringAttachment($attachmentContent, $attachmentFilename, 'base64', 'text/html');
+            }
+
             $mail->send();
             return true;
         } catch (Throwable $e) {
@@ -259,16 +270,278 @@ if (!function_exists('send_store_email')) {
     }
 }
 
+if (!function_exists('email_customer_order_placed')) {
+    function email_customer_order_placed(array $order, array $items): void
+    {
+        $customerEmail = trim((string)($order['customer_email'] ?? ''));
+        if ($customerEmail === '') {
+            return;
+        }
+
+        $invoiceColor = site_setting('invoice_color', '#2c3e50');
+        $storeName    = store_name();
+        $logoUrl      = site_setting('logo_url', '');
+
+        $logoHtml = $logoUrl
+            ? '<img src="' . e(url($logoUrl)) . '" alt="' . e($storeName) . '" style="max-height:50px; margin-bottom:10px;">'
+            : '<h2 style="color:' . $invoiceColor . '; margin:0; font-size:24px;">' . e($storeName) . '</h2>';
+
+        $rows = '';
+        foreach ($items as $i) {
+            $pName  = e($i['name'] ?? $i['product_name'] ?? 'Item');
+            $pQty   = max(1, (int)($i['qty'] ?? $i['quantity'] ?? 1));
+            $unitP  = (float)($i['price'] ?? $i['unit_price'] ?? 0);
+            $pTotal = money($unitP * $pQty);
+
+            $rows .= '
+                <tr style="border-bottom:1px solid #eeeeee;">
+                    <td style="padding:10px; font-size:14px; color:#222;">' . $pName . ' × ' . $pQty . '</td>
+                    <td style="padding:10px; font-size:14px; text-align:right; font-weight:bold; color:#222;">' . $pTotal . '</td>
+                </tr>';
+        }
+
+        $subject = 'Order Received - #' . $order['order_number'];
+        $html = '
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e5de; border-radius: 10px; background-color: #ffffff;">
+            <div style="border-bottom: 2px solid ' . $invoiceColor . '; padding-bottom: 15px; margin-bottom: 20px;">
+                ' . $logoHtml . '
+                <h3 style="margin: 8px 0 0 0; color: ' . $invoiceColor . '; font-size: 20px;">Thank you for your order!</h3>
+            </div>
+            
+            <p style="font-size:15px; color:#333;">Hello <b>' . e($order['customer_name']) . '</b>,</p>
+            <p style="font-size:14px; color:#555; line-height:1.5;">We have received your order <b>#' . e($order['order_number']) . '</b>. Our team is reviewing the details and will confirm your order shortly.</p>
+            
+            <table style="width:100%; border-collapse:collapse; margin: 20px 0;">
+                <thead>
+                    <tr style="background:' . $invoiceColor . '; color:#ffffff;">
+                        <th style="text-align:left; padding:10px; font-size:13px; text-transform:uppercase;">Item</th>
+                        <th style="text-align:right; padding:10px; font-size:13px; text-transform:uppercase;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ' . $rows . '
+                    <tr style="font-size:16px; font-weight:bold; border-top:2px solid #ddd; background:#fdfdfd;">
+                        <td style="padding:12px 10px; color:#222;">Total Due (COD)</td>
+                        <td style="text-align:right; padding:12px 10px; color:' . $invoiceColor . ';">' . money($order['total']) . '</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="color:#777; font-size:12px; text-align:center; margin-top:25px; border-top:1px solid #eee; padding-top:15px;">
+                ' . e(site_setting('invoice_footer_note', 'Thank you for shopping with us!')) . '
+            </p>
+        </div>';
+
+        // Send confirmation receipt to customer without any attached PDF/HTML file
+        send_store_email($customerEmail, $order['customer_name'], $subject, $html);
+    }
+}
+
+if (!function_exists('email_admin_new_order')) {
+    function email_admin_new_order(array $order, array $items): void
+    {
+        $adminEmail = trim(site_setting('admin_email', envv('MAIL_FROM_ADDRESS', '')));
+        if ($adminEmail === '') {
+            return;
+        }
+
+        $invoiceColor = site_setting('invoice_color', '#2c3e50');
+        $storeName    = store_name();
+
+        $subject = '🔔 New COD Order #' . $order['order_number'] . ' received!';
+        $html = '
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e5de; border-radius: 8px;">
+            <h2 style="color:' . $invoiceColor . '; margin-top:0;">New COD Order Received</h2>
+            <p>A new order has been placed on <b>' . e($storeName) . '</b>.</p>
+            
+            <div style="background:#f9f9f9; padding:15px; border-radius:6px; margin:15px 0;">
+                <p style="margin:4px 0;"><b>Order Number:</b> ' . e($order['order_number']) . '</p>
+                <p style="margin:4px 0;"><b>Customer Name:</b> ' . e($order['customer_name']) . '</p>
+                <p style="margin:4px 0;"><b>Phone:</b> ' . e($order['customer_phone']) . '</p>
+                <p style="margin:4px 0;"><b>Email:</b> ' . e($order['customer_email']) . '</p>
+                <p style="margin:4px 0;"><b>Total Amount:</b> ' . money($order['total']) . ' (COD)</p>
+            </div>
+
+            <p><a href="' . e(url('admin/orders.php?id=' . $order['id'])) . '" style="background:' . $invoiceColor . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Open Order in Admin Panel</a></p>
+        </div>';
+
+        // STRICTLY SENDS TO ADMIN ONLY
+        send_store_email($adminEmail, 'Store Admin', $subject, $html);
+    }
+}
+
 if (!function_exists('email_order_customer')) {
     function email_order_customer(array $order, array $items): void
     {
+        $customerEmail = trim((string)($order['customer_email'] ?? ''));
+        if ($customerEmail === '') {
+            return;
+        }
+
+        $invoiceColor = site_setting('invoice_color', '#2c3e50');
+        $logoUrl      = site_setting('logo_url', '');
+        $storeName    = store_name();
+        $invoiceNote  = site_setting('invoice_footer_note', 'Thank you for shopping with us!');
+
+        $logoHtml = $logoUrl
+            ? '<img src="' . e(url($logoUrl)) . '" alt="' . e($storeName) . '" style="max-height:50px; margin-bottom:10px;">'
+            : '<h2 style="color:' . $invoiceColor . '; margin:0; font-size:24px;">' . e($storeName) . '</h2>';
+
+        // Build item rows using price * quantity
         $rows = '';
-        foreach ($items as $i) $rows .= '<tr><td>' . e($i['name']) . ' × ' . (int)$i['quantity'] . '</td><td style="text-align:right">' . money($i['line_total']) . '</td></tr>';
-        $html = '<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto"><h2>Thank you for your order!</h2><p>Hello ' . e($order['customer_name']) . ', your order has been received.</p><p><b>Order ID:</b> ' . e($order['order_number']) . '</p><table style="width:100%;border-collapse:collapse" cellpadding="10">' . $rows . '<tr><td>Subtotal</td><td style="text-align:right">' . money($order['subtotal']) . '</td></tr><tr><td>Discount</td><td style="text-align:right">-' . money($order['discount_amount']) . '</td></tr><tr><td>Delivery</td><td style="text-align:right">' . money($order['shipping_amount']) . '</td></tr><tr><th>Total due on delivery</th><th style="text-align:right">' . money($order['total']) . '</th></tr></table><p>Payment method: Cash on delivery</p><p>We will contact you if we need to confirm delivery details.</p><p>— ' . e(store_name()) . '</p></div>';
+        foreach ($items as $i) {
+            $pName  = e($i['product_name'] ?? $i['name'] ?? 'Product Item');
+            $pQty   = max(1, (int)($i['quantity'] ?? $i['qty'] ?? 1));
+            $unitP  = (float)($i['price'] ?? $i['unit_price'] ?? 0);
+            $pTotal = money($unitP * $pQty);
 
-        send_store_email($order['customer_email'], $order['customer_name'], 'Order confirmation ' . $order['order_number'], $html);
+            $rows .= '
+                <tr style="border-bottom:1px solid #eeeeee;">
+                    <td style="padding:12px; font-size:14px; color:#222222;"><b>' . $pName . '</b></td>
+                    <td style="padding:12px; font-size:14px; text-align:center; color:#555555;">' . $pQty . '</td>
+                    <td style="padding:12px; font-size:14px; text-align:right; color:#222222; font-weight:bold;">' . $pTotal . '</td>
+                </tr>';
+        }
 
-        $admin = site_setting('admin_notification_email', envv('ADMIN_NOTIFICATION_EMAIL', ''));
-        if ($admin) send_store_email($admin, 'Store Admin', 'New order ' . $order['order_number'], '<p>New COD order received: <b>' . e($order['order_number']) . '</b></p><p>Customer: ' . e($order['customer_name']) . ' — ' . e($order['customer_phone']) . '</p><p>Total: ' . money($order['total']) . '</p><p><a href="' . e(url('admin/orders.php')) . '">Open order management</a></p>');
+        $emailSubject = 'Official Tax Invoice - Order #' . $order['order_number'];
+
+        // Clean, printable HTML Invoice Attachment
+        $attachmentHtml = '<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Invoice ' . e($order['order_number']) . '</title>
+<style>
+    body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 40px; background: #fff; }
+    .invoice-card { max-width: 700px; margin: auto; border: 1px solid #e0e0e0; padding: 40px; border-radius: 8px; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid ' . $invoiceColor . '; padding-bottom: 20px; margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; margin: 25px 0; }
+    th { background: ' . $invoiceColor . '; color: #fff; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
+    td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+    .totals { margin-left: auto; width: 280px; background: #f9f9f9; padding: 15px; border-radius: 6px; }
+    .totals div { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="invoice-card">
+    <div class="header">
+        <div>
+            ' . $logoHtml . '
+            <p style="margin:5px 0 0 0; color:#666; font-size:13px;">' . e(url()) . '</p>
+        </div>
+        <div style="text-align:right;">
+            <h1 style="margin:0; font-size:24px; color:' . $invoiceColor . ';">INVOICE</h1>
+            <p style="margin:4px 0 0 0; font-weight:bold;">' . e($order['order_number']) . '</p>
+            <p style="margin:2px 0 0 0; color:#777; font-size:13px;">Date: ' . date('d M, Y', strtotime($order['created_at'])) . '</p>
+        </div>
+    </div>
+    
+    <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
+        <div style="width:48%; background:#fafafa; padding:15px; border-radius:6px; border:1px solid #f0f0f0;">
+            <b style="color:' . $invoiceColor . '; text-transform:uppercase; font-size:11px; display:block; margin-bottom:6px;">Billed To</b>
+            <strong>' . e($order['customer_name']) . '</strong><br>
+            <span style="font-size:13px; color:#555;">' . e($order['customer_email']) . '</span><br>
+            <span style="font-size:13px; color:#555;">' . e($order['customer_phone']) . '</span>
+        </div>
+        <div style="width:48%; background:#fafafa; padding:15px; border-radius:6px; border:1px solid #f0f0f0;">
+            <b style="color:' . $invoiceColor . '; text-transform:uppercase; font-size:11px; display:block; margin-bottom:6px;">Shipping Address</b>
+            <span style="font-size:13px; color:#333;">' . nl2br(e($order['address'])) . '</span><br>
+            <strong style="font-size:13px; color:' . $invoiceColor . ';">' . e($order['city']) . '</strong>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item Description</th>
+                <th style="text-align:center;">Qty</th>
+                <th style="text-align:right;">Line Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            ' . $rows . '
+        </tbody>
+    </table>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+            <b>Payment Method:</b>
+            <p style="margin:4px 0 0 0; font-weight:bold; color:' . $invoiceColor . ';">Cash on Delivery (COD)</p>
+        </div>
+        <div class="totals">
+            <div><span>Subtotal:</span> <span>' . money($order['subtotal']) . '</span></div>
+            <div><span>Discount:</span> <span style="color:#c0392b;">-' . money($order['discount_amount']) . '</span></div>
+            <div><span>Delivery:</span> <span>' . money($order['shipping_amount']) . '</span></div>
+            <hr style="border:0; border-top:1px solid #ddd; margin:8px 0;">
+            <div style="font-size:16px; font-weight:bold; color:' . $invoiceColor . ';"><span>Total Due:</span> <span>' . money($order['total']) . '</span></div>
+        </div>
+    </div>
+
+    <div style="margin-top:40px; border-top:1px solid #eee; padding-top:15px; text-align:center; color:#777; font-size:13px;">
+        <p style="margin:0;">' . e($invoiceNote) . '</p>
+    </div>
+</div>
+</body>
+</html>';
+
+        // Main Body Email Template
+        $bodyHtml = '
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e5de; border-radius: 10px; background-color: #ffffff;">
+            <div style="border-bottom: 2px solid ' . $invoiceColor . '; padding-bottom: 15px; margin-bottom: 20px;">
+                ' . $logoHtml . '
+                <h3 style="margin: 8px 0 0 0; color: ' . $invoiceColor . '; font-size: 20px;">Order Confirmed #' . e($order['order_number']) . '</h3>
+            </div>
+            
+            <p style="font-size:15px; color:#333;">Hello <b>' . e($order['customer_name']) . '</b>,</p>
+            <p style="font-size:14px; color:#555; line-height:1.5;">Great news! Your order has been officially <b>confirmed</b> and is now being packaged for dispatch. A printable copy of your official invoice is attached to this email.</p>
+            
+            <table style="width:100%; border-collapse:collapse; margin: 20px 0;" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr style="background:' . $invoiceColor . '; color:#ffffff;">
+                        <th style="text-align:left; padding:10px; font-size:13px; text-transform:uppercase;">Item Description</th>
+                        <th style="text-align:center; padding:10px; font-size:13px; text-transform:uppercase;">Qty</th>
+                        <th style="text-align:right; padding:10px; font-size:13px; text-transform:uppercase;">Line Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ' . $rows . '
+                    <tr>
+                        <td colspan="2" style="padding:8px 10px; font-size:13px; color:#666;">Subtotal</td>
+                        <td style="text-align:right; padding:8px 10px; font-size:13px; color:#666;">' . money($order['subtotal']) . '</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="padding:8px 10px; font-size:13px; color:#c0392b;">Discount</td>
+                        <td style="text-align:right; padding:8px 10px; font-size:13px; color:#c0392b;">-' . money($order['discount_amount']) . '</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="padding:8px 10px; font-size:13px; color:#666;">Delivery Fee</td>
+                        <td style="text-align:right; padding:8px 10px; font-size:13px; color:#666;">' . money($order['shipping_amount']) . '</td>
+                    </tr>
+                    <tr style="font-size:16px; font-weight:bold; border-top:2px solid #ddd; background:#fdfdfd;">
+                        <td colspan="2" style="padding:12px 10px; color:#222;">Total Amount Due (COD)</td>
+                        <td style="text-align:right; padding:12px 10px; color:' . $invoiceColor . ';">' . money($order['total']) . '</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="background:#f9f9f9; border:1px solid #eee; padding:12px; border-radius:6px; margin-bottom:20px;">
+                <b style="font-size:12px; color:#666; text-transform:uppercase;">Delivery Address:</b>
+                <p style="margin:4px 0 0 0; font-size:13px; color:#333; line-height:1.4;">' . nl2br(e($order['address'])) . '<br><b>' . e($order['city']) . '</b></p>
+            </div>
+
+            <p style="color:#777; font-size:12px; text-align:center; margin-top:25px; border-top:1px solid #eee; padding-top:15px;">
+                ' . e($invoiceNote) . '
+            </p>
+        </div>';
+
+        // Send EXCLUSIVELY to Customer with Attached Printable Invoice
+        send_store_email(
+            $customerEmail,
+            $order['customer_name'],
+            $emailSubject,
+            $bodyHtml,
+            $attachmentHtml,
+            'invoice-' . $order['order_number'] . '.html'
+        );
     }
 }

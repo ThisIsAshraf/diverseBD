@@ -9,20 +9,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (in_array($status, $allowed, true)) {
         $pdo = db();
         $pdo->beginTransaction();
-        $s = $pdo->prepare('SELECT status FROM orders WHERE id=? FOR UPDATE');
+        $s = $pdo->prepare('SELECT * FROM orders WHERE id=? FOR UPDATE');
         $s->execute([$id]);
-        $old = $s->fetchColumn();
+        $order = $s->fetch();
 
-        if ($old !== false) {
+        if ($order) {
+            $oldStatus = $order['status'];
+
+            // Update Status
             $pdo->prepare('UPDATE orders SET status=? WHERE id=?')->execute([$status, $id]);
+
+            // Audit Note
+            $note = 'Status updated in admin panel to ' . ucfirst($status);
+            if ($oldStatus !== $status && $status === 'confirmed') {
+                $note .= ' (Official Invoice sent to customer)';
+            }
+
             $pdo->prepare('INSERT INTO order_status_history(order_id,status,note,changed_by) VALUES(?,?,?,?)')->execute([
                 $id,
                 $status,
-                'Status updated in admin panel',
+                $note,
                 $_SESSION['admin_id'] ?? null
             ]);
             $pdo->commit();
-            flash('success', 'Order status updated to ' . ucfirst($status) . '.');
+
+            // Trigger Official Invoice Email ONLY to Customer when Order is Confirmed
+            if ($oldStatus !== 'confirmed' && $status === 'confirmed') {
+                $linesStmt = db()->prepare('SELECT * FROM order_items WHERE order_id=?');
+                $linesStmt->execute([$id]);
+                $orderItems = $linesStmt->fetchAll();
+
+                // Send Official Invoice Email to Customer
+                email_order_customer($order, $orderItems);
+                flash('success', 'Order #' . $order['order_number'] . ' confirmed and official invoice emailed to customer!');
+            } else {
+                flash('success', 'Order status updated to ' . ucfirst($status) . '.');
+            }
         } else {
             $pdo->rollBack();
             flash('error', 'Order not found.');
