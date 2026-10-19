@@ -22,7 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         site_setting_save('footer_address', trim((string)($_POST['footer_address'] ?? '')));
         site_setting_save('footer_copyright', trim((string)($_POST['footer_copyright'] ?? '')));
 
-        flash('success', 'Storefront theme and footer content updated successfully.');
+        // Social Media Links
+        site_setting_save('social_facebook', trim((string)($_POST['social_facebook'] ?? '')));
+        site_setting_save('social_instagram', trim((string)($_POST['social_instagram'] ?? '')));
+        site_setting_save('social_whatsapp', trim((string)($_POST['social_whatsapp'] ?? '')));
+        site_setting_save('social_tiktok', trim((string)($_POST['social_tiktok'] ?? '')));
+        site_setting_save('social_youtube', trim((string)($_POST['social_youtube'] ?? '')));
+
+        flash('success', 'Storefront theme, footer, and social links updated successfully.');
         redirect('admin/theme.php');
     }
 
@@ -73,21 +80,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Current Color Settings
-$themePrimary  = site_setting('theme_primary_color', '#2c3e50');
-$themeHeaderBg = site_setting('theme_header_bg', '#1a252f');
+$themePrimary     = site_setting('theme_primary_color', '#2c3e50');
+$themeHeaderBg    = site_setting('theme_header_bg', '#1a252f');
 $themeAnnounceText = site_setting('theme_announcement_text', '#ffffff');
-$themeBodyBg   = site_setting('theme_body_bg', '#f8f9fa');
-$themeCardBg   = site_setting('theme_card_bg', '#ffffff');
-$themeBorder   = site_setting('theme_border_color', '#e0e0e0');
-$themeFooterBg = site_setting('theme_footer_bg', '#111111');
-$themeFooterText = site_setting('theme_footer_text', '#ffffff');
+$themeBodyBg      = site_setting('theme_body_bg', '#f8f9fa');
+$themeCardBg      = site_setting('theme_card_bg', '#ffffff');
+$themeBorder      = site_setting('theme_border_color', '#e0e0e0');
+$themeFooterBg    = site_setting('theme_footer_bg', '#111111');
+$themeFooterText  = site_setting('theme_footer_text', '#ffffff');
 
 // Current Footer Content Settings
-$footerAbout = site_setting('footer_about', 'Modern wardrobe staples, everyday fits, and premium quality crafted for style.');
-$footerPhone = site_setting('footer_phone', '+880 1700-000000');
-$footerEmail = site_setting('footer_email', 'hello.divers.almarez@gmail.com');
-$footerAddress = site_setting('footer_address', 'Dhaka, Bangladesh');
+$footerAbout     = site_setting('footer_about', 'Modern wardrobe staples, everyday fits, and premium quality crafted for style.');
+$footerPhone     = site_setting('footer_phone', '+880 1700-000000');
+$footerEmail     = site_setting('footer_email', 'hello.divers.almarez@gmail.com');
+$footerAddress   = site_setting('footer_address', 'Dhaka, Bangladesh');
 $footerCopyright = site_setting('footer_copyright', '© ' . date('Y') . ' ' . store_name() . '. All rights reserved.');
+
+// Current Social Links Settings
+$socialFacebook  = site_setting('social_facebook', '');
+$socialInstagram = site_setting('social_instagram', '');
+$socialWhatsapp  = site_setting('social_whatsapp', '');
+$socialTiktok    = site_setting('social_tiktok', '');
+$socialYoutube   = site_setting('social_youtube', '');
 
 admin_header('Storefront Theme & Footer Control'); ?>
 
@@ -103,7 +117,7 @@ admin_header('Storefront Theme & Footer Control'); ?>
     </div>
 </div>
 
-<!-- Custom Color Controls -->
+<!-- Custom Controls Panel -->
 <div class="panel" style="max-width:800px; margin-bottom:22px;">
     <form method="post">
         <?= csrf_field() ?>
@@ -182,7 +196,37 @@ admin_header('Storefront Theme & Footer Control'); ?>
             </div>
         </div>
 
-        <button class="button" style="margin-top:20px;">Save Theme & Footer Settings</button>
+        <hr style="margin:25px 0; border:0; border-top:1px solid var(--line,#eee);">
+
+        <h2>Social Media Links</h2>
+        <div class="form-grid">
+            <div class="field">
+                <label>Facebook Page URL</label>
+                <input name="social_facebook" value="<?= e($socialFacebook) ?>" placeholder="https://facebook.com/yourpage">
+            </div>
+
+            <div class="field">
+                <label>Instagram Profile URL</label>
+                <input name="social_instagram" value="<?= e($socialInstagram) ?>" placeholder="https://instagram.com/yourprofile">
+            </div>
+
+            <div class="field">
+                <label>WhatsApp Number / Link</label>
+                <input name="social_whatsapp" value="<?= e($socialWhatsapp) ?>" placeholder="https://wa.me/8801700000000">
+            </div>
+
+            <div class="field">
+                <label>TikTok Profile URL</label>
+                <input name="social_tiktok" value="<?= e($socialTiktok) ?>" placeholder="https://tiktok.com/@yourhandle">
+            </div>
+
+            <div class="field" style="grid-column: span 2;">
+                <label>YouTube Channel URL</label>
+                <input name="social_youtube" value="<?= e($socialYoutube) ?>" placeholder="https://youtube.com/@yourchannel">
+            </div>
+        </div>
+
+        <button class="button" style="margin-top:20px;">Save Theme, Footer & Social Settings</button>
     </form>
 </div>
 
