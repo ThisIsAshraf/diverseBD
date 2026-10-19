@@ -1,7 +1,7 @@
 </main>
 
 <?php
-// Dynamic Footer Values (Falls back to default defaults if not set in admin)
+// Dynamic Footer Values
 $footerAbout     = site_setting('footer_about', 'Everyday clothing, thoughtfully selected.');
 $footerPhone     = site_setting('footer_phone', '');
 $footerEmail     = site_setting('footer_email', '');
@@ -33,7 +33,6 @@ $footerCopyright = site_setting('footer_copyright', '© ' . date('Y') . ' ' . st
     <div>
         <b>Information</b>
         <p><a href="<?= e(url('contact.php')) ?>">Shipping & returns</a></p>
-        <p><a href="<?= e(url('admin/login.php')) ?>">Staff login</a></p>
     </div>
 
     <small><?= e($footerCopyright) ?></small>
