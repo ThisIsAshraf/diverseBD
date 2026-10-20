@@ -1,4 +1,6 @@
 <?php require_once __DIR__ . '/_init.php';
+admin_required();
+require_permission('reviews');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();

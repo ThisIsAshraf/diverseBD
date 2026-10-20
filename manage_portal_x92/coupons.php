@@ -1,4 +1,6 @@
 <?php require __DIR__ . '/_init.php';
+admin_required();
+require_permission('coupons');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
     $action = (string)($_POST['action'] ?? '');

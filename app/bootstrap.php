@@ -624,3 +624,58 @@ if (!function_exists('email_user_password_reset')) {
         send_store_email($email, $name, $subject, $html);
     }
 }
+
+
+// Check if the currently logged-in admin is a Super Admin
+if (!function_exists('is_super_admin')) {
+    function is_super_admin(): bool
+    {
+        if (empty($_SESSION['admin_id'])) return false;
+        static $isSuper = null;
+        if ($isSuper !== null) return $isSuper;
+
+        try {
+            $st = db()->prepare('SELECT is_super_admin FROM admins WHERE id = ?');
+            $st->execute([$_SESSION['admin_id']]);
+            $isSuper = (bool)$st->fetchColumn();
+            return $isSuper;
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
+
+// Check if the active admin has permission for a specific module
+if (!function_exists('has_permission')) {
+    function has_permission(string $module): bool
+    {
+        if (is_super_admin()) return true; // Super Admin has unlimited access
+
+        if (empty($_SESSION['admin_id'])) return false;
+
+        try {
+            $st = db()->prepare('SELECT permissions FROM admins WHERE id = ?');
+            $st->execute([$_SESSION['admin_id']]);
+            $raw = (string)$st->fetchColumn();
+
+            if ($raw === '') return false;
+
+            $perms = json_decode($raw, true);
+            return is_array($perms) && in_array($module, $perms, true);
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
+
+// Enforce permission guard on admin pages
+if (!function_exists('require_permission')) {
+    function require_permission(string $module): void
+    {
+        admin_required();
+        if (!has_permission($module)) {
+            flash('error', 'Access denied: You do not have permission to manage ' . ucfirst($module) . '.');
+            redirect('manage_portal_x92/index.php');
+        }
+    }
+}

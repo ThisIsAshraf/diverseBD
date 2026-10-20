@@ -1,152 +1,388 @@
-<?php require_once __DIR__ . '/_init.php';
+<?php
+require_once __DIR__ . '/_init.php';
+admin_required();
 
+$title = 'Admin Security, RBAC & Active Sessions';
+$db = db();
+
+// Available Modules for Permission Assignment
+$availablePermissions = [
+    'products'   => 'Products & Inventory',
+    'categories' => 'Categories',
+    'orders'     => 'Order Management',
+    'reports'    => 'Sales Reports',
+    'coupons'    => 'Discounts & Promotions',
+    'customers'  => 'Customer Management',
+    'contacts'   => 'Contact Messages',
+    'settings'   => 'Store Branding & Settings',
+    'theme'      => 'Storefront Theme',
+    'slides'     => 'Hero Banner Slides',
+    'social'     => 'Social Media Feed',
+    'reviews'    => 'Customer Reviews',
+];
+
+// Handle Form Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
     $action = (string)($_POST['action'] ?? '');
 
-    // Save Max Session Limit
-    if ($action === 'save_limits') {
-        $maxSessions = max(1, (int)($_POST['max_admin_sessions'] ?? 2));
-        site_setting_save('max_admin_sessions', (string)$maxSessions);
-        flash('success', 'Maximum concurrent session limit updated to ' . $maxSessions . '.');
+    // 1. Terminate Session Action
+    if ($action === 'terminate_session') {
+        $sessionId = trim((string)($_POST['session_id'] ?? ''));
+
+        $st = $db->prepare('SELECT admin_id FROM admin_sessions WHERE id = ?');
+        $st->execute([$sessionId]);
+        $targetAdminId = (int)$st->fetchColumn();
+
+        if ($targetAdminId > 0) {
+            $checkSuper = $db->prepare('SELECT is_super_admin FROM admins WHERE id = ?');
+            $checkSuper->execute([$targetAdminId]);
+            $targetIsSuper = (bool)$checkSuper->fetchColumn();
+
+            if ($targetIsSuper && !is_super_admin()) {
+                flash('error', 'Action denied: Secondary admins cannot terminate a Super Admin session.');
+            } else {
+                $db->prepare('DELETE FROM admin_sessions WHERE id = ?')->execute([$sessionId]);
+                flash('success', 'Admin session terminated successfully.');
+            }
+        }
         redirect('manage_portal_x92/security.php');
     }
 
-    // Revoke Remote Session
-    if ($action === 'revoke_session') {
-        $sessId = (string)($_POST['session_id'] ?? '');
-        if ($sessId !== session_id()) {
-            db()->prepare('DELETE FROM admin_sessions WHERE id = ?')->execute([$sessId]);
-            flash('success', 'Remote session revoked successfully.');
+    // 2. Add New Admin (Super Admin Only)
+    if ($action === 'create_admin') {
+        if (!is_super_admin()) {
+            flash('error', 'Action denied: Only Super Admins can create new administrators.');
+            redirect('manage_portal_x92/security.php');
         }
+
+        $name     = trim((string)($_POST['name'] ?? ''));
+        $email    = trim((string)($_POST['email'] ?? ''));
+        $password = (string)($_POST['password'] ?? '');
+        $role     = trim((string)($_POST['role'] ?? 'Staff Administrator'));
+        $perms    = $_POST['permissions'] ?? [];
+
+        if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
+            flash('error', 'Please provide a valid name, email address, and a password of at least 6 characters.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $checkEmail = $db->prepare('SELECT id FROM admins WHERE email = ?');
+        $checkEmail->execute([$email]);
+        if ($checkEmail->fetch()) {
+            flash('error', 'An admin account with this email already exists.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $passHash = password_hash($password, PASSWORD_DEFAULT);
+        $permsJson = json_encode(array_values(array_intersect(array_keys($availablePermissions), (array)$perms)));
+
+        $ins = $db->prepare('INSERT INTO admins (name, email, password_hash, role, is_super_admin, permissions) VALUES (?, ?, ?, ?, 0, ?)');
+        $ins->execute([$name, $email, $passHash, $role, $permsJson]);
+
+        flash('success', 'New admin account for ' . e($name) . ' created successfully.');
+        redirect('manage_portal_x92/security.php');
+    }
+
+    // 3. Update Existing Admin Permissions, Role & Password (Super Admin Only)
+    if ($action === 'update_admin') {
+        if (!is_super_admin()) {
+            flash('error', 'Action denied: Only Super Admins can update admin privileges.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $adminId  = (int)($_POST['admin_id'] ?? 0);
+        $role     = trim((string)($_POST['role'] ?? 'Staff Administrator'));
+        $password = (string)($_POST['password'] ?? '');
+        $perms    = $_POST['permissions'] ?? [];
+
+        // Check target admin status
+        $chk = $db->prepare('SELECT is_super_admin FROM admins WHERE id = ?');
+        $chk->execute([$adminId]);
+        $targetAdmin = $chk->fetch();
+
+        if (!$targetAdmin) {
+            flash('error', 'Admin account not found.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $targetSuper = (bool)$targetAdmin['is_super_admin'];
+        $permsJson = $targetSuper ? null : json_encode(array_values(array_intersect(array_keys($availablePermissions), (array)$perms)));
+
+        if ($password !== '') {
+            if (strlen($password) < 6) {
+                flash('error', 'Password must be at least 6 characters long.');
+                redirect('manage_portal_x92/security.php');
+            }
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $up = $db->prepare('UPDATE admins SET role = ?, password_hash = ?, permissions = ? WHERE id = ?');
+            $up->execute([$role, $hash, $permsJson, $adminId]);
+        } else {
+            $up = $db->prepare('UPDATE admins SET role = ?, permissions = ? WHERE id = ?');
+            $up->execute([$role, $permsJson, $adminId]);
+        }
+
+        flash('success', 'Admin account privileges and password updated successfully.');
+        redirect('manage_portal_x92/security.php');
+    }
+
+    // 4. Delete Admin Account (Super Admin Only)
+    if ($action === 'delete_admin') {
+        if (!is_super_admin()) {
+            flash('error', 'Action denied: Only Super Admins can delete administrators.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $adminId = (int)($_POST['admin_id'] ?? 0);
+
+        if ($adminId === (int)$_SESSION['admin_id']) {
+            flash('error', 'You cannot delete your own active account.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $chk = $db->prepare('SELECT is_super_admin FROM admins WHERE id = ?');
+        $chk->execute([$adminId]);
+        if ($chk->fetchColumn()) {
+            flash('error', 'Action denied: Central Super Admin accounts cannot be deleted.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $db->prepare('DELETE FROM admin_sessions WHERE admin_id = ?')->execute([$adminId]);
+        $db->prepare('DELETE FROM admins WHERE id = ?')->execute([$adminId]);
+
+        flash('success', 'Administrator account removed successfully.');
         redirect('manage_portal_x92/security.php');
     }
 }
 
-// Current Session Limit Setting (Defaults to 2)
-$maxSessionsLimit = (int)site_setting('max_admin_sessions', '2');
+admin_header($title);
 
-// Fetch Active Sessions & Login Audit Logs
-$activeSessions = db()->query('
-    SELECT s.*, a.name admin_name, a.email admin_email
+$admins = $db->query('SELECT * FROM admins ORDER BY is_super_admin DESC, id ASC')->fetchAll();
+$sessions = $db->query('
+    SELECT s.*, a.name AS admin_name, a.email AS admin_email, a.is_super_admin 
     FROM admin_sessions s
-    JOIN admins a ON a.id = s.admin_id
+    JOIN admins a ON s.admin_id = a.id
     ORDER BY s.last_activity DESC
 ')->fetchAll();
 
-$loginLogs = db()->query('
-    SELECT l.*, a.name admin_name
-    FROM admin_login_logs l
-    LEFT JOIN admins a ON a.id = l.admin_id
-    ORDER BY l.id DESC LIMIT 100
-')->fetchAll();
+$editingAdminId = (int)($_GET['edit'] ?? 0);
+?>
 
-admin_header('Admin Security & Session Control'); ?>
-
-<!-- Concurrent Session Limit Card -->
-<div class="panel" style="margin-bottom:25px; max-width: 600px;">
-    <h2>Concurrent Login Limits</h2>
-    <p class="muted small">Control how many active devices can be logged into an admin account simultaneously.</p>
-    <form method="post" style="display:flex; gap:12px; align-items:flex-end;">
-        <?= csrf_field() ?>
-        <input type="hidden" name="action" value="save_limits">
-        <div class="field" style="margin:0; flex:1;">
-            <label>Max Concurrent Admin Sessions</label>
-            <input type="number" min="1" max="10" name="max_admin_sessions" value="<?= e((string)$maxSessionsLimit) ?>" required>
-        </div>
-        <button class="button">Save Limit</button>
-    </form>
-</div>
-
-<!-- Active Sessions Table -->
+<!-- Section 1: Active Admin Sessions Management -->
 <div class="panel" style="margin-bottom:25px;">
-    <h2>Active Admin Sessions (<?= count($activeSessions) ?> / <?= $maxSessionsLimit ?> Active)</h2>
-    <p class="muted small">All active devices currently authorized in the admin portal.</p>
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Admin</th>
-                    <th>IP Address</th>
-                    <th>Browser / Device</th>
-                    <th>Last Active</th>
-                    <th>Status</th>
-                    <th>Action</th>
+    <h2>Active Signed-In Sessions</h2>
+    <p class="muted small" style="margin-top:-5px; margin-bottom:15px;">
+        Monitor real-time devices logged into your store panel.
+    </p>
+
+    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+        <thead>
+            <tr style="background:#f4f6f8; text-align:left; border-bottom:2px solid #eee;">
+                <th style="padding:10px;">Admin Account</th>
+                <th style="padding:10px;">IP Address</th>
+                <th style="padding:10px;">Browser / Device</th>
+                <th style="padding:10px;">Last Active</th>
+                <th style="padding:10px; text-align:right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($sessions as $s): ?>
+                <?php $isCurrentSession = ($s['id'] === session_id()); ?>
+                <tr style="border-bottom:1px solid #eee; <?= $isCurrentSession ? 'background:#f0f9ff;' : '' ?>">
+                    <td style="padding:10px;">
+                        <b><?= e($s['admin_name']) ?></b><br>
+                        <span class="small muted"><?= e($s['admin_email']) ?></span>
+                        <?= $s['is_super_admin'] ? '<span style="background:#2c3e50; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">SUPER ADMIN</span>' : '' ?>
+                    </td>
+                    <td style="padding:10px;"><code><?= e($s['ip_address']) ?></code></td>
+                    <td style="padding:10px; font-size:12px; color:#555; max-width:200px; word-break:break-word;">
+                        <?= e($s['user_agent']) ?>
+                    </td>
+                    <td style="padding:10px; font-size:13px; color:#666;">
+                        <?= date('d M Y, h:i A', strtotime($s['last_activity'])) ?>
+                    </td>
+                    <td style="padding:10px; text-align:right;">
+                        <?php if ($isCurrentSession): ?>
+                            <span style="color:#27ae60; font-weight:bold; font-size:12px;">Active Device</span>
+                        <?php else: ?>
+                            <form method="post" style="display:inline;" onsubmit="return confirm('Revoke this login session?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="action" value="terminate_session">
+                                <input type="hidden" name="session_id" value="<?= e($s['id']) ?>">
+                                <button class="button secondary danger" style="padding:5px 10px; font-size:12px;">Revoke Session</button>
+                            </form>
+                        <?php endif; ?>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($activeSessions as $s):
-                    $isCurrent = ($s['id'] === session_id());
-                ?>
-                    <tr>
-                        <td><b><?= e($s['admin_name']) ?></b><br><span class="muted small"><?= e($s['admin_email']) ?></span></td>
-                        <td><code><?= e($s['ip_address']) ?></code></td>
-                        <td style="max-width:280px; font-size:12px; color:#555; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" title="<?= e($s['user_agent']) ?>">
-                            <?= e($s['user_agent']) ?>
-                        </td>
-                        <td><?= date('M d, Y g:i a', strtotime($s['last_activity'])) ?></td>
-                        <td>
-                            <?php if ($isCurrent): ?>
-                                <span class="status" style="padding:2px 8px; background:#e8f8f5; color:#27ae60; font-weight:bold;">Current Device</span>
-                            <?php else: ?>
-                                <span class="status" style="padding:2px 8px; background:#f4f6f8; color:#777;">Remote Device</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if (!$isCurrent): ?>
-                                <form method="post" style="margin:0;">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="action" value="revoke_session">
-                                    <input type="hidden" name="session_id" value="<?= e($s['id']) ?>">
-                                    <button class="button secondary" style="padding:4px 8px; font-size:12px; background:#fde8e8; color:#e74c3c;">Revoke</button>
-                                </form>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                <?php if (!$activeSessions): ?>
-                    <tr>
-                        <td colspan="6" style="text-align:center; padding:20px;">No active sessions.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
 
-<!-- Login History Audit Log -->
+<!-- Section 2: Role-Based Admin Account Management -->
 <div class="panel">
-    <h2>Login History Audit Log</h2>
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Attempted Email</th>
-                    <th>IP Address</th>
-                    <th>Browser Signature</th>
-                    <th>Result</th>
+    <h2>Administrator Accounts & Privileges</h2>
+
+    <table style="width:100%; border-collapse:collapse; margin-top:15px;">
+        <thead>
+            <tr style="background:#f4f6f8; text-align:left; border-bottom:2px solid #eee;">
+                <th style="padding:10px;">Name & Email</th>
+                <th style="padding:10px;">Assigned Role</th>
+                <th style="padding:10px;">Module Permissions</th>
+                <th style="padding:10px; text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($admins as $a): ?>
+                <?php
+                $pArr = $a['permissions'] ? json_decode($a['permissions'], true) : [];
+                if (!is_array($pArr)) $pArr = [];
+                $isEditingThis = ($editingAdminId === (int)$a['id']);
+                ?>
+                <tr style="border-bottom:1px solid #eee; vertical-align:top; <?= $isEditingThis ? 'background:#fffde7;' : '' ?>">
+                    <td style="padding:12px 10px;">
+                        <b><?= e($a['name']) ?></b><br>
+                        <span class="small muted"><?= e($a['email']) ?></span>
+                    </td>
+                    <td style="padding:12px 10px;">
+                        <span style="background:#eef2f7; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold; color:#2c3e50;">
+                            <?= e($a['role']) ?>
+                        </span>
+                    </td>
+                    <td style="padding:12px 10px; font-size:12px; color:#444;">
+                        <?php if ($a['is_super_admin']): ?>
+                            <b style="color:#27ae60;">Full Unrestricted System Access</b>
+                        <?php elseif (empty($pArr)): ?>
+                            <span style="color:#e74c3c;">No Permissions Assigned</span>
+                        <?php else: ?>
+                            <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                                <?php foreach ($pArr as $pk): ?>
+                                    <span style="background:#e8f4f8; color:#16a085; padding:2px 6px; border-radius:3px; font-size:11px;">
+                                        <?= e($availablePermissions[$pk] ?? $pk) ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </td>
+                    <td style="padding:12px 10px; text-align:right;">
+                        <?php if (is_super_admin() && !$a['is_super_admin']): ?>
+                            <a href="<?= e(url('manage_portal_x92/security.php?edit=' . $a['id'])) ?>#edit-form" class="button secondary" style="padding:4px 8px; font-size:12px; margin-right:4px;">Edit Privileges / Password</a>
+
+                            <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this admin account?');">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="action" value="delete_admin">
+                                <input type="hidden" name="admin_id" value="<?= $a['id'] ?>">
+                                <button class="button danger" style="padding:4px 8px; font-size:12px;">Delete</button>
+                            </form>
+                        <?php elseif ($a['is_super_admin']): ?>
+                            <span class="small muted" style="font-weight:bold; color:#2c3e50;">Primary Central Admin</span>
+                        <?php endif; ?>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($loginLogs as $l): ?>
-                    <tr>
-                        <td><?= date('M d, Y g:i a', strtotime($l['created_at'])) ?></td>
-                        <td><b><?= e($l['email_attempted']) ?></b></td>
-                        <td><code><?= e($l['ip_address']) ?></code></td>
-                        <td style="max-width:300px; font-size:12px; color:#555; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" title="<?= e($l['user_agent']) ?>">
-                            <?= e($l['user_agent']) ?>
-                        </td>
-                        <td>
-                            <span class="status" style="padding:2px 8px; font-weight:bold; font-size:12px; background: <?= $l['status'] === 'success' ? '#e8f8f5; color:#27ae60;' : '#fde8e8; color:#e74c3c;' ?>">
-                                <?= strtoupper(e($l['status'])) ?>
-                            </span>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <?php if (is_super_admin()): ?>
+        <hr style="margin:25px 0; border:0; border-top:1px solid #eee;">
+
+        <?php
+        $editTarget = null;
+        if ($editingAdminId > 0) {
+            foreach ($admins as $ad) {
+                if ((int)$ad['id'] === $editingAdminId && !$ad['is_super_admin']) {
+                    $editTarget = $ad;
+                    break;
+                }
+            }
+        }
+        ?>
+
+        <?php if ($editTarget): ?>
+            <!-- Edit Admin Privileges & Password Form -->
+            <div id="edit-form" style="background:#fff8e1; border:1px solid #ffe082; padding:20px; border-radius:8px; margin-top:15px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0; color:#856404;">Edit Admin Privileges: <?= e($editTarget['name']) ?> (<?= e($editTarget['email']) ?>)</h3>
+                    <a href="<?= e(url('manage_portal_x92/security.php')) ?>" style="color:#856404; font-size:13px;">Cancel Edit ✕</a>
+                </div>
+
+                <form method="post" style="max-width:650px; margin-top:15px;">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="update_admin">
+                    <input type="hidden" name="admin_id" value="<?= $editTarget['id'] ?>">
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Role / Position Title</label>
+                            <input name="role" value="<?= e($editTarget['role']) ?>" required placeholder="e.g., Inventory Manager">
+                        </div>
+                        <div class="field">
+                            <label>New Password (Leave blank to keep unchanged)</label>
+                            <input type="password" name="password" minlength="6" placeholder="Enter new password">
+                        </div>
+                    </div>
+
+                    <?php
+                    $currPerms = $editTarget['permissions'] ? json_decode($editTarget['permissions'], true) : [];
+                    if (!is_array($currPerms)) $currPerms = [];
+                    ?>
+                    <div class="field" style="margin-top:15px;">
+                        <label style="font-weight:bold; display:block; margin-bottom:8px;">Assigned Module Access Permissions:</label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:10px; background:#fff; padding:15px; border-radius:6px; border:1px solid #e0e0e0;">
+                            <?php foreach ($availablePermissions as $key => $label): ?>
+                                <label style="font-size:13px; font-weight:normal; cursor:pointer;">
+                                    <input type="checkbox" name="permissions[]" value="<?= $key ?>" <?= in_array($key, $currPerms, true) ? 'checked' : '' ?> style="width:auto; margin-right:5px;">
+                                    <?= e($label) ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <button type="submit" style="margin-top:15px; background:#f39c12; border-color:#d35400;">Update Admin Account</button>
+                </form>
+            </div>
+        <?php else: ?>
+            <!-- Create New Admin Form -->
+            <h3>Create Secondary Admin Account</h3>
+            <form method="post" style="max-width:650px; margin-top:15px;">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="create_admin">
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Full Name *</label>
+                        <input name="name" required placeholder="e.g., Jane Doe">
+                    </div>
+                    <div class="field">
+                        <label>Email Address *</label>
+                        <input type="email" name="email" required placeholder="staff@store.com">
+                    </div>
+                    <div class="field">
+                        <label>Password *</label>
+                        <input type="password" name="password" required minlength="6" placeholder="Min. 6 characters">
+                    </div>
+                    <div class="field">
+                        <label>Role / Position Title</label>
+                        <input name="role" value="Order Processor" placeholder="e.g., Inventory Manager">
+                    </div>
+                </div>
+
+                <div class="field" style="margin-top:15px;">
+                    <label style="font-weight:bold; display:block; margin-bottom:8px;">Grant Module Access Permissions:</label>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:10px; background:#f9f9f9; padding:15px; border-radius:6px; border:1px solid #eee;">
+                        <?php foreach ($availablePermissions as $key => $label): ?>
+                            <label style="font-size:13px; font-weight:normal; cursor:pointer;">
+                                <input type="checkbox" name="permissions[]" value="<?= $key ?>" style="width:auto; margin-right:5px;">
+                                <?= e($label) ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <button type="submit" style="margin-top:15px;">Create Administrator Account</button>
+            </form>
+        <?php endif; ?>
+    <?php endif; ?>
 </div>
 
 <?php admin_footer(); ?>

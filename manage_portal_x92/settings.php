@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
+admin_required();
+require_permission('settings');
 $title = 'Store Branding, Mailer & Email Templates';
 $uploadDir = dirname(__DIR__) . '/storage/uploads';
 $uploadUrl = 'storage/uploads';

@@ -1,4 +1,6 @@
 <?php require __DIR__ . '/_init.php';
+admin_required();
+require_permission('reports');
 
 $from = (string)($_GET['from'] ?? date('Y-m-01'));
 $to = (string)($_GET['to'] ?? date('Y-m-d'));
