@@ -56,7 +56,7 @@ require_once __DIR__ . '/app/header.php';
 <div style="max-width: 900px; margin: 30px auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
         <h1 style="margin:0;">My Account</h1>
-        <a href="<?= e(url('logout.php')) ?>" class="button secondary" style="padding:8px 16px;">Log Out</a>
+        <a href="<?= e(url('user_logout.php')) ?>" class="button secondary" style="padding:8px 16px;">Log Out</a>
     </div>
 
     <?php if ($errors): ?>
