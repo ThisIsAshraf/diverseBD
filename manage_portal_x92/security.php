@@ -26,6 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
     $action = (string)($_POST['action'] ?? '');
 
+    // 0. Update Max Admin Sessions Settings
+    if ($action === 'update_max_sessions') {
+        if (!is_super_admin()) {
+            flash('error', 'Action denied: Only Super Admins can update security settings.');
+            redirect('manage_portal_x92/security.php');
+        }
+
+        $maxVal = max(1, (int)($_POST['max_admin_sessions'] ?? 2));
+        $upsert = $db->prepare('INSERT INTO site_settings (setting_key, setting_value) VALUES ("max_admin_sessions", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)');
+        $upsert->execute([(string)$maxVal]);
+
+        flash('success', 'Max concurrent admin sessions set to ' . $maxVal . '.');
+        redirect('manage_portal_x92/security.php');
+    }
+
     // 1. Terminate Session Action
     if ($action === 'terminate_session') {
         $sessionId = trim((string)($_POST['session_id'] ?? ''));
@@ -96,7 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = (string)($_POST['password'] ?? '');
         $perms    = $_POST['permissions'] ?? [];
 
-        // Check target admin status
         $chk = $db->prepare('SELECT is_super_admin FROM admins WHERE id = ?');
         $chk->execute([$adminId]);
         $targetAdmin = $chk->fetch();
@@ -166,14 +180,32 @@ $sessions = $db->query('
 ')->fetchAll();
 
 $editingAdminId = (int)($_GET['edit'] ?? 0);
+$currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
 ?>
 
-<!-- Section 1: Active Admin Sessions Management -->
+<!-- Section 1: Active Admin Sessions & Session Limits -->
 <div class="panel" style="margin-bottom:25px;">
-    <h2>Active Signed-In Sessions</h2>
-    <p class="muted small" style="margin-top:-5px; margin-bottom:15px;">
-        Monitor real-time devices logged into your store panel.
-    </p>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:15px; margin-bottom:15px;">
+        <div>
+            <h2 style="margin:0;">Active Signed-In Sessions</h2>
+            <p class="muted small" style="margin:4px 0 0 0;">
+                Monitor real-time devices logged into your store panel.
+            </p>
+        </div>
+
+        <?php if (is_super_admin()): ?>
+            <!-- Session Limit Control Form -->
+            <form method="post" style="display:flex; align-items:center; gap:10px; background:#f8f9fa; padding:8px 12px; border-radius:6px; border:1px solid #e0e0e0;">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="update_max_sessions">
+                <label style="font-size:12px; font-weight:bold; color:#444; margin:0; whitespace:nowrap;">
+                    Max Concurrent Sessions per Admin:
+                </label>
+                <input type="number" name="max_admin_sessions" value="<?= $currentMaxSessions ?>" min="1" max="10" required style="width:60px; padding:4px 8px; font-size:13px; text-align:center; border:1px solid #ccc; border-radius:4px;">
+                <button type="submit" class="button secondary" style="padding:4px 10px; font-size:12px;">Save Limit</button>
+            </form>
+        <?php endif; ?>
+    </div>
 
     <table style="width:100%; border-collapse:collapse; margin-top:10px;">
         <thead>

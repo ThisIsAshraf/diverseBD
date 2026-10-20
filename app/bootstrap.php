@@ -46,18 +46,30 @@ if (!function_exists('e')) {
 if (!function_exists('site_setting')) {
     function site_setting(string $key, string $default = ''): string
     {
-        static $settings = null;
-        if ($settings === null) {
-            $settings = [];
-            try {
-                foreach (db()->query('SELECT setting_key, setting_value FROM site_settings')->fetchAll() as $row) {
-                    $settings[(string)$row['setting_key']] = (string)($row['setting_value'] ?? '');
-                }
-            } catch (Throwable $e) {
-                // Keep environment/default branding available if settings are not installed yet.
-            }
+        static $cache = [];
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
         }
-        return (string)($settings[$key] ?? $default);
+
+        try {
+            $st = db()->prepare('SELECT setting_value FROM site_settings WHERE setting_key = ?');
+            $st->execute([$key]);
+            $val = $st->fetchColumn();
+
+            if ($val !== false && $val !== null) {
+                $cache[$key] = (string)$val;
+                return $cache[$key];
+            }
+
+            // Insert default value into DB if key doesn't exist
+            $ins = db()->prepare('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_key = setting_key');
+            $ins->execute([$key, $default]);
+
+            $cache[$key] = $default;
+            return $default;
+        } catch (Throwable $e) {
+            return $default;
+        }
     }
 }
 
