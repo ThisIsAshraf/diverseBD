@@ -198,7 +198,7 @@ $currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
             <form method="post" style="display:flex; align-items:center; gap:10px; background:#f8f9fa; padding:8px 12px; border-radius:6px; border:1px solid #e0e0e0;">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="update_max_sessions">
-                <label style="font-size:12px; font-weight:bold; color:#444; margin:0; whitespace:nowrap;">
+                <label style="font-size:12px; font-weight:bold; color:#444; margin:0; white-space:nowrap;">
                     Max Concurrent Sessions per Admin:
                 </label>
                 <input type="number" name="max_admin_sessions" value="<?= $currentMaxSessions ?>" min="1" max="10" required style="width:60px; padding:4px 8px; font-size:13px; text-align:center; border:1px solid #ccc; border-radius:4px;">
