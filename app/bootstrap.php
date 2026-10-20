@@ -278,13 +278,26 @@ if (!function_exists('email_customer_order_placed')) {
             return;
         }
 
-        $invoiceColor = site_setting('invoice_color', '#2c3e50');
-        $storeName    = store_name();
-        $logoUrl      = site_setting('logo_url', '');
+        $emailColor = site_setting('invoice_color', '#2c3e50');
+        $storeName  = store_name();
+        $logoUrl    = site_setting('logo_url', '');
+
+        $subjTemplate  = site_setting('email_order_placed_subject', 'Order Received - #{order_number}');
+        $introTemplate = site_setting('email_order_placed_intro', 'We have received your order #{order_number}. Our team is reviewing the details and will confirm your order shortly.');
+
+        $replacements = [
+            '{order_number}'  => $order['order_number'] ?? '',
+            '{customer_name}' => $order['customer_name'] ?? '',
+            '{total}'         => money($order['total'] ?? 0),
+            '{store_name}'    => $storeName,
+        ];
+
+        $subject   = str_replace(array_keys($replacements), array_values($replacements), $subjTemplate);
+        $introText = str_replace(array_keys($replacements), array_values($replacements), $introTemplate);
 
         $logoHtml = $logoUrl
             ? '<img src="' . e(url($logoUrl)) . '" alt="' . e($storeName) . '" style="max-height:50px; margin-bottom:10px;">'
-            : '<h2 style="color:' . $invoiceColor . '; margin:0; font-size:24px;">' . e($storeName) . '</h2>';
+            : '<h2 style="color:' . $emailColor . '; margin:0; font-size:24px;">' . e($storeName) . '</h2>';
 
         $rows = '';
         foreach ($items as $i) {
@@ -300,20 +313,19 @@ if (!function_exists('email_customer_order_placed')) {
                 </tr>';
         }
 
-        $subject = 'Order Received - #' . $order['order_number'];
         $html = '
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e5de; border-radius: 10px; background-color: #ffffff;">
-            <div style="border-bottom: 2px solid ' . $invoiceColor . '; padding-bottom: 15px; margin-bottom: 20px;">
+            <div style="border-bottom: 2px solid ' . $emailColor . '; padding-bottom: 15px; margin-bottom: 20px;">
                 ' . $logoHtml . '
-                <h3 style="margin: 8px 0 0 0; color: ' . $invoiceColor . '; font-size: 20px;">Thank you for your order!</h3>
+                <h3 style="margin: 8px 0 0 0; color: ' . $emailColor . '; font-size: 20px;">' . e($subject) . '</h3>
             </div>
             
             <p style="font-size:15px; color:#333;">Hello <b>' . e($order['customer_name']) . '</b>,</p>
-            <p style="font-size:14px; color:#555; line-height:1.5;">We have received your order <b>#' . e($order['order_number']) . '</b>. Our team is reviewing the details and will confirm your order shortly.</p>
+            <p style="font-size:14px; color:#555; line-height:1.5;">' . nl2br(e($introText)) . '</p>
             
             <table style="width:100%; border-collapse:collapse; margin: 20px 0;">
                 <thead>
-                    <tr style="background:' . $invoiceColor . '; color:#ffffff;">
+                    <tr style="background:' . $emailColor . '; color:#ffffff;">
                         <th style="text-align:left; padding:10px; font-size:13px; text-transform:uppercase;">Item</th>
                         <th style="text-align:right; padding:10px; font-size:13px; text-transform:uppercase;">Total</th>
                     </tr>
@@ -322,7 +334,7 @@ if (!function_exists('email_customer_order_placed')) {
                     ' . $rows . '
                     <tr style="font-size:16px; font-weight:bold; border-top:2px solid #ddd; background:#fdfdfd;">
                         <td style="padding:12px 10px; color:#222;">Total Due (COD)</td>
-                        <td style="text-align:right; padding:12px 10px; color:' . $invoiceColor . ';">' . money($order['total']) . '</td>
+                        <td style="text-align:right; padding:12px 10px; color:' . $emailColor . ';">' . money($order['total']) . '</td>
                     </tr>
                 </tbody>
             </table>
@@ -332,7 +344,6 @@ if (!function_exists('email_customer_order_placed')) {
             </p>
         </div>';
 
-        // Send confirmation receipt to customer without any attached PDF/HTML file
         send_store_email($customerEmail, $order['customer_name'], $subject, $html);
     }
 }
@@ -345,13 +356,13 @@ if (!function_exists('email_admin_new_order')) {
             return;
         }
 
-        $invoiceColor = site_setting('invoice_color', '#2c3e50');
-        $storeName    = store_name();
+        $emailColor = site_setting('invoice_color', '#2c3e50');
+        $storeName  = store_name();
 
         $subject = '🔔 New COD Order #' . $order['order_number'] . ' received!';
         $html = '
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e5de; border-radius: 8px;">
-            <h2 style="color:' . $invoiceColor . '; margin-top:0;">New COD Order Received</h2>
+            <h2 style="color:' . $emailColor . '; margin-top:0;">New COD Order Received</h2>
             <p>A new order has been placed on <b>' . e($storeName) . '</b>.</p>
             
             <div style="background:#f9f9f9; padding:15px; border-radius:6px; margin:15px 0;">
@@ -362,10 +373,9 @@ if (!function_exists('email_admin_new_order')) {
                 <p style="margin:4px 0;"><b>Total Amount:</b> ' . money($order['total']) . ' (COD)</p>
             </div>
 
-            <p><a href="' . e(url('admin/orders.php?id=' . $order['id'])) . '" style="background:' . $invoiceColor . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Open Order in Admin Panel</a></p>
+            <p><a href="' . e(url('admin/orders.php?id=' . $order['id'])) . '" style="background:' . $emailColor . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Open Order in Admin Panel</a></p>
         </div>';
 
-        // STRICTLY SENDS TO ADMIN ONLY
         send_store_email($adminEmail, 'Store Admin', $subject, $html);
     }
 }
@@ -378,16 +388,25 @@ if (!function_exists('email_order_customer')) {
             return;
         }
 
-        $invoiceColor = site_setting('invoice_color', '#2c3e50');
+        $emailColor   = site_setting('invoice_color', '#2c3e50');
         $logoUrl      = site_setting('logo_url', '');
         $storeName    = store_name();
         $invoiceNote  = site_setting('invoice_footer_note', 'Thank you for shopping with us!');
+        $subjTemplate = site_setting('email_invoice_subject', 'Official Tax Invoice - Order #{order_number}');
+
+        $replacements = [
+            '{order_number}'  => $order['order_number'] ?? '',
+            '{customer_name}' => $order['customer_name'] ?? '',
+            '{total}'         => money($order['total'] ?? 0),
+            '{store_name}'    => $storeName,
+        ];
+
+        $emailSubject = str_replace(array_keys($replacements), array_values($replacements), $subjTemplate);
 
         $logoHtml = $logoUrl
             ? '<img src="' . e(url($logoUrl)) . '" alt="' . e($storeName) . '" style="max-height:50px; margin-bottom:10px;">'
-            : '<h2 style="color:' . $invoiceColor . '; margin:0; font-size:24px;">' . e($storeName) . '</h2>';
+            : '<h2 style="color:' . $emailColor . '; margin:0; font-size:24px;">' . e($storeName) . '</h2>';
 
-        // Build item rows using price * quantity
         $rows = '';
         foreach ($items as $i) {
             $pName  = e($i['product_name'] ?? $i['name'] ?? 'Product Item');
@@ -403,9 +422,6 @@ if (!function_exists('email_order_customer')) {
                 </tr>';
         }
 
-        $emailSubject = 'Official Tax Invoice - Order #' . $order['order_number'];
-
-        // Clean, printable HTML Invoice Attachment
         $attachmentHtml = '<!doctype html>
 <html>
 <head>
@@ -414,9 +430,9 @@ if (!function_exists('email_order_customer')) {
 <style>
     body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 40px; background: #fff; }
     .invoice-card { max-width: 700px; margin: auto; border: 1px solid #e0e0e0; padding: 40px; border-radius: 8px; }
-    .header { display: flex; justify-content: space-between; border-bottom: 2px solid ' . $invoiceColor . '; padding-bottom: 20px; margin-bottom: 30px; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid ' . $emailColor . '; padding-bottom: 20px; margin-bottom: 30px; }
     table { width: 100%; border-collapse: collapse; margin: 25px 0; }
-    th { background: ' . $invoiceColor . '; color: #fff; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
+    th { background: ' . $emailColor . '; color: #fff; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
     .totals { margin-left: auto; width: 280px; background: #f9f9f9; padding: 15px; border-radius: 6px; }
     .totals div { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
@@ -430,7 +446,7 @@ if (!function_exists('email_order_customer')) {
             <p style="margin:5px 0 0 0; color:#666; font-size:13px;">' . e(url()) . '</p>
         </div>
         <div style="text-align:right;">
-            <h1 style="margin:0; font-size:24px; color:' . $invoiceColor . ';">INVOICE</h1>
+            <h1 style="margin:0; font-size:24px; color:' . $emailColor . ';">INVOICE</h1>
             <p style="margin:4px 0 0 0; font-weight:bold;">' . e($order['order_number']) . '</p>
             <p style="margin:2px 0 0 0; color:#777; font-size:13px;">Date: ' . date('d M, Y', strtotime($order['created_at'])) . '</p>
         </div>
@@ -438,15 +454,15 @@ if (!function_exists('email_order_customer')) {
     
     <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
         <div style="width:48%; background:#fafafa; padding:15px; border-radius:6px; border:1px solid #f0f0f0;">
-            <b style="color:' . $invoiceColor . '; text-transform:uppercase; font-size:11px; display:block; margin-bottom:6px;">Billed To</b>
+            <b style="color:' . $emailColor . '; text-transform:uppercase; font-size:11px; display:block; margin-bottom:6px;">Billed To</b>
             <strong>' . e($order['customer_name']) . '</strong><br>
             <span style="font-size:13px; color:#555;">' . e($order['customer_email']) . '</span><br>
             <span style="font-size:13px; color:#555;">' . e($order['customer_phone']) . '</span>
         </div>
         <div style="width:48%; background:#fafafa; padding:15px; border-radius:6px; border:1px solid #f0f0f0;">
-            <b style="color:' . $invoiceColor . '; text-transform:uppercase; font-size:11px; display:block; margin-bottom:6px;">Shipping Address</b>
+            <b style="color:' . $emailColor . '; text-transform:uppercase; font-size:11px; display:block; margin-bottom:6px;">Shipping Address</b>
             <span style="font-size:13px; color:#333;">' . nl2br(e($order['address'])) . '</span><br>
-            <strong style="font-size:13px; color:' . $invoiceColor . ';">' . e($order['city']) . '</strong>
+            <strong style="font-size:13px; color:' . $emailColor . ';">' . e($order['city']) . '</strong>
         </div>
     </div>
 
@@ -466,14 +482,14 @@ if (!function_exists('email_order_customer')) {
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
             <b>Payment Method:</b>
-            <p style="margin:4px 0 0 0; font-weight:bold; color:' . $invoiceColor . ';">Cash on Delivery (COD)</p>
+            <p style="margin:4px 0 0 0; font-weight:bold; color:' . $emailColor . ';">Cash on Delivery (COD)</p>
         </div>
         <div class="totals">
             <div><span>Subtotal:</span> <span>' . money($order['subtotal']) . '</span></div>
             <div><span>Discount:</span> <span style="color:#c0392b;">-' . money($order['discount_amount']) . '</span></div>
             <div><span>Delivery:</span> <span>' . money($order['shipping_amount']) . '</span></div>
             <hr style="border:0; border-top:1px solid #ddd; margin:8px 0;">
-            <div style="font-size:16px; font-weight:bold; color:' . $invoiceColor . ';"><span>Total Due:</span> <span>' . money($order['total']) . '</span></div>
+            <div style="font-size:16px; font-weight:bold; color:' . $emailColor . ';"><span>Total Due:</span> <span>' . money($order['total']) . '</span></div>
         </div>
     </div>
 
@@ -484,12 +500,11 @@ if (!function_exists('email_order_customer')) {
 </body>
 </html>';
 
-        // Main Body Email Template
         $bodyHtml = '
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e5de; border-radius: 10px; background-color: #ffffff;">
-            <div style="border-bottom: 2px solid ' . $invoiceColor . '; padding-bottom: 15px; margin-bottom: 20px;">
+            <div style="border-bottom: 2px solid ' . $emailColor . '; padding-bottom: 15px; margin-bottom: 20px;">
                 ' . $logoHtml . '
-                <h3 style="margin: 8px 0 0 0; color: ' . $invoiceColor . '; font-size: 20px;">Order Confirmed #' . e($order['order_number']) . '</h3>
+                <h3 style="margin: 8px 0 0 0; color: ' . $emailColor . '; font-size: 20px;">Order Confirmed #' . e($order['order_number']) . '</h3>
             </div>
             
             <p style="font-size:15px; color:#333;">Hello <b>' . e($order['customer_name']) . '</b>,</p>
@@ -497,7 +512,7 @@ if (!function_exists('email_order_customer')) {
             
             <table style="width:100%; border-collapse:collapse; margin: 20px 0;" cellpadding="0" cellspacing="0">
                 <thead>
-                    <tr style="background:' . $invoiceColor . '; color:#ffffff;">
+                    <tr style="background:' . $emailColor . '; color:#ffffff;">
                         <th style="text-align:left; padding:10px; font-size:13px; text-transform:uppercase;">Item Description</th>
                         <th style="text-align:center; padding:10px; font-size:13px; text-transform:uppercase;">Qty</th>
                         <th style="text-align:right; padding:10px; font-size:13px; text-transform:uppercase;">Line Total</th>
@@ -519,7 +534,7 @@ if (!function_exists('email_order_customer')) {
                     </tr>
                     <tr style="font-size:16px; font-weight:bold; border-top:2px solid #ddd; background:#fdfdfd;">
                         <td colspan="2" style="padding:12px 10px; color:#222;">Total Amount Due (COD)</td>
-                        <td style="text-align:right; padding:12px 10px; color:' . $invoiceColor . ';">' . money($order['total']) . '</td>
+                        <td style="text-align:right; padding:12px 10px; color:' . $emailColor . ';">' . money($order['total']) . '</td>
                     </tr>
                 </tbody>
             </table>
@@ -534,7 +549,6 @@ if (!function_exists('email_order_customer')) {
             </p>
         </div>';
 
-        // Send EXCLUSIVELY to Customer with Attached Printable Invoice
         send_store_email(
             $customerEmail,
             $order['customer_name'],
@@ -546,7 +560,6 @@ if (!function_exists('email_order_customer')) {
     }
 }
 
-// Check if Customer is Logged In
 if (!function_exists('current_user')) {
     function current_user(): ?array
     {
@@ -558,7 +571,7 @@ if (!function_exists('current_user')) {
             $st = db()->prepare('SELECT * FROM users WHERE id = ? AND status = "active"');
             $st->execute([$_SESSION['user_id']]);
             $user = $st->fetch() ?: null;
-            if (!$user) unset($_SESSION['user_id']); // Revoke invalid sessions
+            if (!$user) unset($_SESSION['user_id']);
             return $user;
         } catch (Throwable $e) {
             return null;
@@ -566,20 +579,18 @@ if (!function_exists('current_user')) {
     }
 }
 
-// Ensure User Is Authenticated
 if (!function_exists('user_required')) {
     function user_required(): array
     {
         $u = current_user();
         if (!$u) {
             flash('error', 'Please log in or register to access your account.');
-            redirect('login.php');
+            redirect('user_login.php');
         }
         return $u;
     }
 }
 
-// Send Signup Welcome Email
 if (!function_exists('email_user_welcome')) {
     function email_user_welcome(array $user): void
     {
@@ -589,13 +600,12 @@ if (!function_exists('email_user_welcome')) {
             <h2 style="color:' . site_setting('invoice_color', '#2c3e50') . ';">Welcome, ' . e($user['name']) . '!</h2>
             <p>Thank you for creating an account with <b>' . e(store_name()) . '</b>.</p>
             <p>Your account allows you to place orders faster without filling out your details every time.</p>
-            <p><a href="' . e(url('login.php')) . '" style="background:' . site_setting('invoice_color', '#2c3e50') . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Log In to Your Account</a></p>
+            <p><a href="' . e(url('user_login.php')) . '" style="background:' . site_setting('invoice_color', '#2c3e50') . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Log In to Your Account</a></p>
         </div>';
         send_store_email($user['email'], $user['name'], $subject, $html);
     }
 }
 
-// Send Temporary Password Email
 if (!function_exists('email_user_password_reset')) {
     function email_user_password_reset(string $email, string $name, string $tempPassword): void
     {
@@ -609,7 +619,7 @@ if (!function_exists('email_user_password_reset')) {
                 ' . e($tempPassword) . '
             </div>
             <p>Please log in using this temporary password and update it immediately in your account settings.</p>
-            <p><a href="' . e(url('login.php')) . '" style="background:' . site_setting('invoice_color', '#2c3e50') . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Log In Now</a></p>
+            <p><a href="' . e(url('user_login.php')) . '" style="background:' . site_setting('invoice_color', '#2c3e50') . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Log In Now</a></p>
         </div>';
         send_store_email($email, $name, $subject, $html);
     }
