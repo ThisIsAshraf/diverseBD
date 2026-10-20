@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 20, 2026 at 09:58 AM
+-- Generation Time: Oct 20, 2026 at 03:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -30,6 +30,9 @@ SET time_zone = "+00:00";
 CREATE TABLE `admins` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(120) NOT NULL,
+  `role` varchar(50) NOT NULL DEFAULT 'admin',
+  `is_super_admin` tinyint(1) NOT NULL DEFAULT 0,
+  `permissions` text DEFAULT NULL,
   `email` varchar(190) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -39,8 +42,9 @@ CREATE TABLE `admins` (
 -- Dumping data for table `admins`
 --
 
-INSERT INTO `admins` (`id`, `name`, `email`, `password_hash`, `created_at`) VALUES
-(1, 'DiverseAdmin', 'alam.office.my@gmail.com', '$2y$10$yOiaQpKA30BaoYjO1y0DmuxcxGn7Cq.DfmB9O7DkrSrkiMwuv19OK', '2026-10-18 10:25:09');
+INSERT INTO `admins` (`id`, `name`, `role`, `is_super_admin`, `permissions`, `email`, `password_hash`, `created_at`) VALUES
+(1, 'DiverseAdmin', 'Super Admin', 1, NULL, 'alam.office.my@gmail.com', '$2y$10$yOiaQpKA30BaoYjO1y0DmuxcxGn7Cq.DfmB9O7DkrSrkiMwuv19OK', '2026-10-18 10:25:09'),
+(2, 'Shihab', 'UserOnly', 0, '[\"products\",\"orders\"]', 'shihab@az.com', '$2y$10$wXsorNAYQN/5s11ZWSYtruBKKLzAXpSnUS6fov9wGuDz9tJ7Mb7Xe', '2026-10-20 12:43:38');
 
 -- --------------------------------------------------------
 
@@ -63,10 +67,13 @@ CREATE TABLE `admin_login_logs` (
 --
 
 INSERT INTO `admin_login_logs` (`id`, `admin_id`, `email_attempted`, `ip_address`, `user_agent`, `status`, `created_at`) VALUES
-(8, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-19 19:15:07'),
-(9, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'failed', '2026-10-19 19:16:29'),
-(10, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-19 19:16:52'),
-(11, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 07:01:59');
+(12, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 08:37:59'),
+(13, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 11:42:11'),
+(14, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 11:53:12'),
+(15, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:32:44'),
+(16, 2, 'shihab@az.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:44:05'),
+(17, 2, 'shihab@az.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:45:22'),
+(18, 2, 'shihab@az.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:52:14');
 
 -- --------------------------------------------------------
 
@@ -87,8 +94,9 @@ CREATE TABLE `admin_sessions` (
 --
 
 INSERT INTO `admin_sessions` (`id`, `admin_id`, `ip_address`, `user_agent`, `last_activity`) VALUES
-('7p34ncte74vnja9sfcqbuip0km', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-20 07:41:36'),
-('hc852loeuogdkaqe4f1ikjv0m9', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-19 20:06:52');
+('363p4hqmko3eg58ijj8ps4e1aj', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', '2026-10-20 12:52:03'),
+('3hmhqaa3tii7q4ijtvhji4a3vp', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-20 12:51:59'),
+('v85a935dkhhdas4a26c6phn6hj', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', '2026-10-20 12:52:31');
 
 -- --------------------------------------------------------
 
@@ -108,8 +116,7 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `name`, `slug`, `created_at`) VALUES
-(1, 'Print', 'print', '2026-10-19 19:21:10'),
-(2, 'Panjabi', 'panjabi', '2026-10-19 19:55:25');
+(1, 'Test', 'test', '2026-10-20 11:54:47');
 
 -- --------------------------------------------------------
 
@@ -126,13 +133,6 @@ CREATE TABLE `contacts` (
   `status` enum('new','read','replied','closed') NOT NULL DEFAULT 'new',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `contacts`
---
-
-INSERT INTO `contacts` (`id`, `name`, `email`, `subject`, `message`, `status`, `created_at`) VALUES
-(1, 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', 'System Mail', 'casocbhkolasbcksbkcvbsklbckbk', 'replied', '2026-10-19 19:33:18');
 
 -- --------------------------------------------------------
 
@@ -223,8 +223,7 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `user_id`, `order_number`, `customer_name`, `customer_email`, `customer_phone`, `address`, `city`, `notes`, `payment_method`, `status`, `subtotal`, `discount_amount`, `shipping_amount`, `total`, `coupon_code`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'DVBD261020AC8D66', 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', '01982401992', 'Test Address', 'Dhaka', 'rrrrrrr', 'COD', 'confirmed', 150.00, 0.00, 0.00, 150.00, NULL, '2026-10-19 19:22:59', '2026-10-19 19:26:43'),
-(2, 1, 'DVBD261020406A41', 'Ashraful Alam Shihab', 'ashrafulalam4083@gmail.com', '01760812657', 'Girls School Road, Dakskin Khan, Dhaka-1230', 'Dhaka', '', 'COD', 'delivered', 300.00, 0.00, 0.00, 300.00, NULL, '2026-10-20 07:39:33', '2026-10-20 07:41:36');
+(1, 1, 'DVBD26102066BF94', 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', '01982401992', 'Test Address', 'Dhaka', '', 'COD', 'pending', 12.00, 0.00, 0.00, 12.00, NULL, '2026-10-20 11:59:50', '2026-10-20 11:59:50');
 
 -- --------------------------------------------------------
 
@@ -248,8 +247,7 @@ CREATE TABLE `order_items` (
 --
 
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `product_name`, `sku`, `quantity`, `unit_price`, `line_total`) VALUES
-(1, 1, 1, 'Drop Shooulder', 'DS001', 1, 150.00, 150.00),
-(2, 2, 1, 'Drop Shooulder', 'DS001', 2, 150.00, 300.00);
+(1, 1, 1, 'Everyday Oversized Blazer', 'FGE', 1, 12.00, 12.00);
 
 -- --------------------------------------------------------
 
@@ -271,13 +269,7 @@ CREATE TABLE `order_status_history` (
 --
 
 INSERT INTO `order_status_history` (`id`, `order_id`, `status`, `note`, `changed_by`, `created_at`) VALUES
-(1, 1, 'pending', 'Order placed by customer', NULL, '2026-10-19 19:22:59'),
-(2, 1, 'processing', 'Status updated in admin panel to Processing', 1, '2026-10-19 19:26:16'),
-(3, 1, 'confirmed', 'Status updated in admin panel to Confirmed (Official Invoice sent to customer)', 1, '2026-10-19 19:26:43'),
-(4, 2, 'pending', 'Order placed by customer', NULL, '2026-10-20 07:39:33'),
-(5, 2, 'confirmed', 'Status updated in admin panel to Confirmed (Official Invoice sent to customer)', 1, '2026-10-20 07:40:18'),
-(6, 2, 'cancelled', 'Status updated in admin panel to Cancelled', 1, '2026-10-20 07:41:22'),
-(7, 2, 'delivered', 'Status updated in admin panel to Delivered', 1, '2026-10-20 07:41:36');
+(1, 1, 'pending', 'Order placed by customer', NULL, '2026-10-20 11:59:50');
 
 -- --------------------------------------------------------
 
@@ -306,8 +298,7 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `description`, `price`, `compare_price`, `image_url`, `stock`, `active`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Drop Shooulder', 'drop-shooulder', 'DS001', '', 150.00, NULL, 'uploads/prod_1792437670_c6bf399d.png', 12, 1, '2026-10-19 19:21:10', '2026-10-20 07:39:33'),
-(2, 2, 'New Panjabi', 'new-panjabi', 'PNH555', 'CVSACVSVSV', 50.00, NULL, 'uploads/prod_1792439778_ac3168cf.jpg', 10, 1, '2026-10-19 19:56:18', '2026-10-19 19:56:18');
+(1, 1, 'Everyday Oversized Blazer', 'everyday-oversized-blazer', 'FGE', 'sss', 12.00, NULL, 'uploads/prod_1792497287_5d57e7bd.png', 11, 1, '2026-10-20 11:54:47', '2026-10-20 11:59:50');
 
 -- --------------------------------------------------------
 
@@ -321,18 +312,6 @@ CREATE TABLE `product_images` (
   `image_url` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `product_images`
---
-
-INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `created_at`) VALUES
-(1, 1, 'uploads/gal_1792437670_39ff3a.jpg', '2026-10-19 19:21:10'),
-(2, 1, 'uploads/gal_1792437670_bc0090.jpg', '2026-10-19 19:21:10'),
-(3, 1, 'uploads/gal_1792437670_de9ecc.jpg', '2026-10-19 19:21:10'),
-(4, 2, 'uploads/gal_1792439778_137162.jpeg', '2026-10-19 19:56:18'),
-(5, 2, 'uploads/gal_1792439778_8af2c5.jpeg', '2026-10-19 19:56:18'),
-(6, 2, 'uploads/gal_1792439778_546986.jpeg', '2026-10-19 19:56:18');
 
 -- --------------------------------------------------------
 
@@ -354,6 +333,9 @@ INSERT INTO `site_settings` (`setting_key`, `setting_value`, `updated_at`) VALUE
 ('admin_notification_email', 'hello.divers.almarez@gmail.com', '2026-10-18 17:02:39'),
 ('announcement', 'Test Header Announcement', '2026-10-19 19:36:37'),
 ('currency_symbol', '৳', '2026-10-18 12:02:43'),
+('email_invoice_subject', 'Official Tax Invoice - Order #{order_number}', '2026-10-20 08:34:08'),
+('email_order_placed_intro', 'We have received your order #{order_number}. Our team is reviewing the details and will confirm your order shortly.', '2026-10-20 08:33:26'),
+('email_order_placed_subject', 'Order Received - #{order_number}', '2026-10-20 08:33:26'),
 ('footer_about', 'Modern wardrobe staples, everyday fits, and premium quality crafted for style.dddddddeee', '2026-10-19 19:41:10'),
 ('footer_address', 'Dhaka, Bangladesh', '2026-10-18 17:41:41'),
 ('footer_copyright', '© 2026 Diverse. All rights reserved.', '2026-10-18 17:41:41'),
@@ -385,7 +367,11 @@ INSERT INTO `site_settings` (`setting_key`, `setting_value`, `updated_at`) VALUE
 ('theme_footer_bg', '#2c3e50', '2026-10-19 19:40:19'),
 ('theme_footer_text', '#fcf8f2', '2026-10-19 19:40:19'),
 ('theme_header_bg', '#2c3e50', '2026-10-19 19:40:19'),
-('theme_primary_color', '#d35400', '2026-10-19 19:40:19');
+('theme_primary_color', '#d35400', '2026-10-19 19:40:19'),
+('trust_badge_1_sub', 'Fast delivery across Bangladesh', '2026-10-20 08:33:26'),
+('trust_badge_1_title', 'Nationwide Shipping', '2026-10-20 08:33:26'),
+('trust_badge_2_sub', 'Pay safely at your doorstep', '2026-10-20 08:33:26'),
+('trust_badge_2_title', 'Cash on Delivery', '2026-10-20 08:33:26');
 
 -- --------------------------------------------------------
 
@@ -403,13 +389,6 @@ CREATE TABLE `social_links` (
   `active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `social_links`
---
-
-INSERT INTO `social_links` (`id`, `platform`, `title`, `post_url`, `image_url`, `sort_order`, `active`, `created_at`) VALUES
-(1, 'Facebook', 'vgsvgsdgv', 'https://www.facebook.com/ashraful.alam.984813', 'uploads/social_1792439608_0be254.jpg', 0, 1, '2026-10-19 19:52:31');
 
 -- --------------------------------------------------------
 
@@ -429,14 +408,6 @@ CREATE TABLE `stock_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `stock_logs`
---
-
-INSERT INTO `stock_logs` (`id`, `product_id`, `admin_id`, `change_type`, `quantity`, `old_stock`, `new_stock`, `note`, `created_at`) VALUES
-(1, 1, 1, 'add', 10, 9, 19, 'Notun Mal Aysa', '2026-10-19 19:43:57'),
-(2, 1, 1, 'subtract', 5, 19, 14, '5 ta nosto', '2026-10-19 19:44:33');
-
 -- --------------------------------------------------------
 
 --
@@ -452,13 +423,6 @@ CREATE TABLE `testimonials` (
   `active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `testimonials`
---
-
-INSERT INTO `testimonials` (`id`, `customer_name`, `review_text`, `rating`, `sort_order`, `active`, `created_at`) VALUES
-(1, 'Shihab', 'onek valo', 4, 0, 1, '2026-10-19 19:54:16');
 
 -- --------------------------------------------------------
 
@@ -486,8 +450,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `phone`, `address`, `city`, `status`, `reset_token`, `reset_token_expires`, `created_at`, `updated_at`) VALUES
-(1, 'Ashraful Alam Shihab', 'ashrafulalam4083@gmail.com', '$2y$10$A9UaYh22NIPHiRfdxsGWJ.Qfgn68kFuQ1iHq97ehhhqPJFl12W0D6', '01760812657', 'Girls School Road, Dakskin Khan, Dhaka-1230', 'Dhaka', 'active', NULL, NULL, '2026-10-20 07:29:43', '2026-10-20 07:45:04'),
-(2, 'Ashraful Alam Shihab', 'hello.ash.ge@gmail.com', '$2y$10$dden/h9aRLD7XqSUYG5Wh.e9LHbiB9uTPEZIqHBa.AVb7nQa8zJ0i', '01982401992', 'Test Address', 'Dhaka', 'active', NULL, NULL, '2026-10-20 07:35:19', '2026-10-20 07:35:19');
+(1, 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', '$2y$10$PHhvDhGBXfraX5axL31nA.1Vfah6vu1zUNXVcNsC6FKEpd1KV9m7u', '01982401992', 'Test Address', 'Dhaka', 'active', NULL, NULL, '2026-10-20 11:53:59', '2026-10-20 11:53:59');
 
 --
 -- Indexes for dumped tables
@@ -624,25 +587,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `admin_login_logs`
 --
 ALTER TABLE `admin_login_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `contacts`
 --
 ALTER TABLE `contacts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `coupons`
@@ -660,55 +623,55 @@ ALTER TABLE `hero_slides`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `social_links`
 --
 ALTER TABLE `social_links`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `stock_logs`
 --
 ALTER TABLE `stock_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `testimonials`
 --
 ALTER TABLE `testimonials`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
