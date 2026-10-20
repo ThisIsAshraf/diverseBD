@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $maxVal = max(1, (int)($_POST['max_admin_sessions'] ?? 2));
-        $upsert = $db->prepare('INSERT INTO site_settings (setting_key, setting_value) VALUES ("max_admin_sessions", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)');
-        $upsert->execute([(string)$maxVal]);
+        $upsert = $db->prepare('INSERT INTO site_settings (setting_key, setting_value) VALUES ("max_admin_sessions", ?) ON DUPLICATE KEY UPDATE setting_value = ?');
+        $upsert->execute([(string)$maxVal, (string)$maxVal]);
 
         flash('success', 'Max concurrent admin sessions set to ' . $maxVal . '.');
         redirect('manage_portal_x92/security.php');
@@ -95,6 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ins = $db->prepare('INSERT INTO admins (name, email, password_hash, role, is_super_admin, permissions) VALUES (?, ?, ?, ?, 0, ?)');
         $ins->execute([$name, $email, $passHash, $role, $permsJson]);
 
+        // Sync credentials to Apache .htpasswd file
+        if (function_exists('sync_htpasswd_user')) {
+            sync_htpasswd_user($email, $password);
+        }
+
         flash('success', 'New admin account for ' . e($name) . ' created successfully.');
         redirect('manage_portal_x92/security.php');
     }
@@ -111,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = (string)($_POST['password'] ?? '');
         $perms    = $_POST['permissions'] ?? [];
 
-        $chk = $db->prepare('SELECT is_super_admin FROM admins WHERE id = ?');
+        $chk = $db->prepare('SELECT is_super_admin, email FROM admins WHERE id = ?');
         $chk->execute([$adminId]);
         $targetAdmin = $chk->fetch();
 
@@ -131,6 +136,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $up = $db->prepare('UPDATE admins SET role = ?, password_hash = ?, permissions = ? WHERE id = ?');
             $up->execute([$role, $hash, $permsJson, $adminId]);
+
+            // Sync credentials to Apache .htpasswd file
+            if (function_exists('sync_htpasswd_user') && !empty($targetAdmin['email'])) {
+                sync_htpasswd_user((string)$targetAdmin['email'], $password);
+            }
         } else {
             $up = $db->prepare('UPDATE admins SET role = ?, permissions = ? WHERE id = ?');
             $up->execute([$role, $permsJson, $adminId]);

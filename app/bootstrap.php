@@ -691,3 +691,37 @@ if (!function_exists('require_permission')) {
         }
     }
 }
+
+if (!function_exists('sync_htpasswd_user')) {
+    function sync_htpasswd_user(string $username, string $plainPassword): bool
+    {
+        $htpasswdPath = __DIR__ . '/../manage_portal_x92/.htpasswd';
+        if (!file_exists($htpasswdPath)) {
+            return false;
+        }
+
+        $lines = file($htpasswdPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $updatedLines = [];
+        $userFound = false;
+
+        // Generate SHA1 hash in Apache htpasswd format: {SHA}base64_encode(sha1(pass, raw))
+        $hash = '{SHA}' . base64_encode(sha1($plainPassword, true));
+        $newLine = $username . ':' . $hash;
+
+        foreach ($lines as $line) {
+            $parts = explode(':', $line, 2);
+            if (trim($parts[0]) === $username) {
+                $updatedLines[] = $newLine;
+                $userFound = true;
+            } else {
+                $updatedLines[] = $line;
+            }
+        }
+
+        if (!$userFound) {
+            $updatedLines[] = $newLine;
+        }
+
+        return file_put_contents($htpasswdPath, implode("\n", $updatedLines) . "\n") !== false;
+    }
+}
