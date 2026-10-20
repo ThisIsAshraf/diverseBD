@@ -47,14 +47,14 @@ admin_header('Sales reports'); ?>
             <div class="field" style="margin:0"><label>From</label><input type="date" name="from" value="<?= e($from) ?>"></div>
             <div class="field" style="margin:0"><label>To</label><input type="date" name="to" value="<?= e($to) ?>"></div>
             <button class="button">Run report</button>
-            <a class="button secondary" href="<?= e(url('admin/reports.php?from=' . urlencode($from) . '&to=' . urlencode($to) . '&export=csv')) ?>">Export CSV</a>
+            <a class="button secondary" href="<?= e(url('manage_portal_x92/reports.php?from=' . urlencode($from) . '&to=' . urlencode($to) . '&export=csv')) ?>">Export CSV</a>
         </form>
 
         <!-- Quick Filter Shortcuts -->
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <a class="button secondary" style="padding:6px 10px; font-size:12px;" href="<?= e(url('admin/reports.php?from=' . date('Y-m-d') . '&to=' . date('Y-m-d'))) ?>">Today</a>
-            <a class="button secondary" style="padding:6px 10px; font-size:12px;" href="<?= e(url('admin/reports.php?from=' . date('Y-m-01') . '&to=' . date('Y-m-d'))) ?>">This Month</a>
-            <a class="button secondary" style="padding:6px 10px; font-size:12px;" href="<?= e(url('admin/reports.php?from=' . date('Y-m-d', strtotime('-30 days')) . '&to=' . date('Y-m-d'))) ?>">Last 30 Days</a>
+            <a class="button secondary" style="padding:6px 10px; font-size:12px;" href="<?= e(url('manage_portal_x92/reports.php?from=' . date('Y-m-d') . '&to=' . date('Y-m-d'))) ?>">Today</a>
+            <a class="button secondary" style="padding:6px 10px; font-size:12px;" href="<?= e(url('manage_portal_x92/reports.php?from=' . date('Y-m-01') . '&to=' . date('Y-m-d'))) ?>">This Month</a>
+            <a class="button secondary" style="padding:6px 10px; font-size:12px;" href="<?= e(url('manage_portal_x92/reports.php?from=' . date('Y-m-d', strtotime('-30 days')) . '&to=' . date('Y-m-d'))) ?>">Last 30 Days</a>
         </div>
     </div>
 </div>

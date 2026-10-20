@@ -80,11 +80,11 @@ admin_header('Customer Directory & Intelligence'); ?>
                 <input name="q" value="<?= e($search) ?>" placeholder="Search name, email, phone, city..." style="padding: 6px 12px; min-width: 250px;">
                 <button class="button">Search</button>
                 <?php if ($search !== ''): ?>
-                    <a class="button secondary" href="<?= e(url('admin/customers.php')) ?>">Clear</a>
+                    <a class="button secondary" href="<?= e(url('manage_portal_x92/customers.php')) ?>">Clear</a>
                 <?php endif; ?>
             </form>
 
-            <a class="button secondary" style="padding: 7px 14px; font-weight:bold;" href="<?= e(url('admin/customers.php?q=' . urlencode($search) . '&export=csv')) ?>">
+            <a class="button secondary" style="padding: 7px 14px; font-weight:bold;" href="<?= e(url('manage_portal_x92/customers.php?q=' . urlencode($search) . '&export=csv')) ?>">
                 📥 Export CSV
             </a>
         </div>
@@ -96,7 +96,7 @@ admin_header('Customer Directory & Intelligence'); ?>
     <div class="panel" style="margin-bottom: 22px; background: #f8f9fa; border: 1px solid #ddd;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 style="margin:0;">Order History for <?= e($inspectCustomer['customer_name']) ?> (<?= e($inspectCustomer['customer_email']) ?>)</h3>
-            <a class="button secondary" style="padding:4px 10px; font-size:12px;" href="<?= e(url('admin/customers.php')) ?>">Close Inspection</a>
+            <a class="button secondary" style="padding:4px 10px; font-size:12px;" href="<?= e(url('manage_portal_x92/customers.php')) ?>">Close Inspection</a>
         </div>
 
         <div class="table-wrap">
@@ -124,7 +124,7 @@ admin_header('Customer Directory & Intelligence'); ?>
                             </td>
                             <td><?= e($co['courier_name'] ?: 'Unassigned') ?></td>
                             <td>
-                                <a class="button secondary" style="padding:3px 8px; font-size:12px;" href="<?= e(url('admin/orders.php?id=' . $co['id'])) ?>">Open Invoice</a>
+                                <a class="button secondary" style="padding:3px 8px; font-size:12px;" href="<?= e(url('manage_portal_x92/orders.php?id=' . $co['id'])) ?>">Open Invoice</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -166,8 +166,8 @@ admin_header('Customer Directory & Intelligence'); ?>
                         <td><b><?= money($c['lifetime_spend']) ?></b></td>
                         <td><?= date('M d, Y', strtotime($c['last_order_date'])) ?></td>
                         <td style="display:flex; gap:6px;">
-                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('admin/customers.php?inspect_email=' . urlencode($c['customer_email']))) ?>">Inspect Orders</a>
-                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('admin/contacts.php')) ?>">Message</a>
+                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('manage_portal_x92/customers.php?inspect_email=' . urlencode($c['customer_email']))) ?>">Inspect Orders</a>
+                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('manage_portal_x92/contacts.php')) ?>">Message</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

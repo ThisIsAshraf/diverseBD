@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($name === '' || $review === '') {
             flash('error', 'Customer name and review text are required.');
-            redirect('admin/testimonials.php');
+            redirect('manage_portal_x92/testimonials.php');
         }
 
         if ($id) {
@@ -25,21 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $s->execute([$name, $review, $rating, $sortOrder, $active]);
         }
         flash('success', 'Testimonial saved.');
-        redirect('admin/testimonials.php');
+        redirect('manage_portal_x92/testimonials.php');
     }
 
     if ($action === 'toggle') {
         $id = (int)($_POST['id'] ?? 0);
         db()->prepare('UPDATE testimonials SET active=1-active WHERE id=?')->execute([$id]);
         flash('success', 'Testimonial state updated.');
-        redirect('admin/testimonials.php');
+        redirect('manage_portal_x92/testimonials.php');
     }
 
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         db()->prepare('DELETE FROM testimonials WHERE id=?')->execute([$id]);
         flash('success', 'Testimonial deleted.');
-        redirect('admin/testimonials.php');
+        redirect('manage_portal_x92/testimonials.php');
     }
 }
 
@@ -73,7 +73,7 @@ admin_header('Customer Reviews & Testimonials'); ?>
         </div>
         <div class="field"><label>Review / Feedback *</label><textarea name="review_text" required><?= e($edit['review_text'] ?? '') ?></textarea></div>
         <label><input style="width:auto" type="checkbox" name="active" value="1" <?= (!$edit || !empty($edit['active'])) ? 'checked' : '' ?>> Visible on homepage</label>
-        <p style="margin-top:15px;"><button>Save Review</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('admin/testimonials.php')) ?>">Cancel</a><?php endif; ?></p>
+        <p style="margin-top:15px;"><button>Save Review</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('manage_portal_x92/testimonials.php')) ?>">Cancel</a><?php endif; ?></p>
     </form>
 </div>
 
@@ -98,7 +98,7 @@ admin_header('Customer Reviews & Testimonials'); ?>
                         <td><?= e($rv['review_text']) ?></td>
                         <td><?= !empty($rv['active']) ? 'Active' : 'Hidden' ?></td>
                         <td style="display:flex; gap:6px;">
-                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('admin/testimonials.php?edit=' . $rv['id'])) ?>">Edit</a>
+                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('manage_portal_x92/testimonials.php?edit=' . $rv['id'])) ?>">Edit</a>
                             <form method="post" style="display:inline; margin:0;"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?= $rv['id'] ?>"><button class="button secondary" style="padding:4px 8px; font-size:12px;"><?= !empty($rv['active']) ? 'Hide' : 'Show' ?></button></form>
                             <form method="post" style="display:inline; margin:0;" onsubmit="return confirm('Delete this review?')"><?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $rv['id'] ?>"><button class="button secondary" style="padding:4px 8px; font-size:12px; background:#fde8e8; color:#e74c3c;">Delete</button></form>
                         </td>

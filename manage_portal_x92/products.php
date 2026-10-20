@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             db()->prepare('DELETE FROM product_images WHERE id=?')->execute([$imgId]);
             flash('success', 'Gallery image deleted.');
         }
-        redirect('admin/products.php?edit=' . $prodId);
+        redirect('manage_portal_x92/products.php?edit=' . $prodId);
     }
 
     if ($action === 'save') {
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($name === '' || $sku === '' || $price < 0) {
             flash('error', 'Name, SKU and a valid price are required.');
-            redirect('admin/products.php');
+            redirect('manage_portal_x92/products.php');
         }
 
         try {
@@ -106,14 +106,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log($e->getMessage());
             flash('error', 'Could not save product.');
         }
-        redirect('admin/products.php');
+        redirect('manage_portal_x92/products.php');
     }
 
     if ($action === 'toggle') {
         $id = (int)($_POST['id'] ?? 0);
         db()->prepare('UPDATE products SET active=1-active WHERE id=?')->execute([$id]);
         flash('success', 'Product visibility updated.');
-        redirect('admin/products.php');
+        redirect('manage_portal_x92/products.php');
     }
 }
 
@@ -189,7 +189,7 @@ admin_header('Products & inventory'); ?>
 
         <div class="field"><label>Description</label><textarea name="description"><?= e($edit['description'] ?? '') ?></textarea></div>
         <label><input style="width:auto" type="checkbox" name="active" value="1" <?= (!$edit || !empty($edit['active'])) ? 'checked' : '' ?>> Visible on storefront</label>
-        <p><button>Save product</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('admin/products.php')) ?>">Cancel</a><?php endif; ?></p>
+        <p><button>Save product</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('manage_portal_x92/products.php')) ?>">Cancel</a><?php endif; ?></p>
     </form>
 </div>
 
@@ -224,7 +224,7 @@ admin_header('Products & inventory'); ?>
                         <td><span class="<?= ((int)$p['stock'] <= 5) ? 'notice error' : 'status' ?>"><?= (int)$p['stock'] ?></span></td>
                         <td><?= !empty($p['active']) ? 'Active' : 'Hidden' ?></td>
                         <td>
-                            <a href="<?= e(url('admin/products.php?edit=' . $p['id'])) ?>">Edit</a>
+                            <a href="<?= e(url('manage_portal_x92/products.php?edit=' . $p['id'])) ?>">Edit</a>
                             <form method="post" style="display:inline"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?= $p['id'] ?>"><button class="button secondary" style="padding:6px 8px"><?= !empty($p['active']) ? 'Hide' : 'Show' ?></button></form>
                         </td>
                     </tr>

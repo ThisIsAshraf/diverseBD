@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('success', 'Temporary password sent to ' . $u['email']);
         }
     }
-    redirect('admin/users.php');
+    redirect('manage_portal_x92/users.php');
 }
 
 $users = db()->query('SELECT u.*, COUNT(o.id) total_orders FROM users u LEFT JOIN orders o ON o.user_id=u.id GROUP BY u.id ORDER BY u.id DESC')->fetchAll();

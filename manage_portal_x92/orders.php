@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('error', 'Order not found.');
         }
     }
-    redirect('admin/orders.php' . ($id ? '?id=' . $id : ''));
+    redirect('manage_portal_x92/orders.php' . ($id ? '?id=' . $id : ''));
 }
 
 $detail = null;
@@ -191,7 +191,7 @@ $logoUrl = site_setting('logo_url', '');
             </div>
             <div style="display:flex; gap:10px;">
                 <button onclick="window.print()" class="button" style="padding:8px 18px; font-weight:bold;">🖨️ Print Invoice</button>
-                <a class="button secondary" href="<?= e(url('admin/orders.php')) ?>">← Back to All Orders</a>
+                <a class="button secondary" href="<?= e(url('manage_portal_x92/orders.php')) ?>">← Back to All Orders</a>
             </div>
         </div>
 
@@ -355,7 +355,7 @@ $logoUrl = site_setting('logo_url', '');
                             </span>
                         </td>
                         <td><?= date('M d, Y', strtotime($o['created_at'])) ?></td>
-                        <td><a class="button secondary" style="padding:4px 10px; font-size:12px;" href="<?= e(url('admin/orders.php?id=' . $o['id'])) ?>">Inspect Invoice</a></td>
+                        <td><a class="button secondary" style="padding:4px 10px; font-size:12px;" href="<?= e(url('manage_portal_x92/orders.php?id=' . $o['id'])) ?>">Inspect Invoice</a></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$orders): ?>

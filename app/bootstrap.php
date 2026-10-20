@@ -188,7 +188,7 @@ if (!function_exists('admin_required')) {
     function admin_required(): void
     {
         if (empty($_SESSION['admin_id'])) {
-            redirect('admin/login.php');
+            redirect('manage_portal_x92/login.php');
         }
 
         try {
@@ -198,7 +198,7 @@ if (!function_exists('admin_required')) {
             if (!$check->fetch()) {
                 unset($_SESSION['admin_id'], $_SESSION['admin_name'], $_SESSION['admin_email']);
                 flash('error', 'Your session was ended because another device signed in or it was revoked.');
-                redirect('admin/login.php');
+                redirect('manage_portal_x92/login.php');
             }
 
             db()->prepare('UPDATE admin_sessions SET last_activity = NOW() WHERE id = ?')->execute([session_id()]);

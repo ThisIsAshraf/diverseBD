@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             flash('error', 'Please enter a valid recipient email address.');
         }
-        redirect('admin/settings.php');
+        redirect('manage_portal_x92/settings.php');
     }
 
     if ($action === 'save_settings') {
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($name === '') {
             flash('error', 'Please enter a valid store name.');
-            redirect('admin/settings.php');
+            redirect('manage_portal_x92/settings.php');
         }
 
         // Save Branding 
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         flash('success', 'Store configuration, mail credentials, email templates, and guarantee badges updated.');
-        redirect('admin/settings.php');
+        redirect('manage_portal_x92/settings.php');
     }
 }
 

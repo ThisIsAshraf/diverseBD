@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$product) {
                 $pdo->rollBack();
                 flash('error', 'Product not found.');
-                redirect('admin/stock-logs.php');
+                redirect('manage_portal_x92/stock-logs.php');
             }
 
             $oldStock = (int)$product['stock'];
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('error', 'Could not update inventory stock.');
         }
 
-        redirect('admin/stock-logs.php');
+        redirect('manage_portal_x92/stock-logs.php');
     }
 }
 

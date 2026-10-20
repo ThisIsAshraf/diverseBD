@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($name === '') {
             flash('error', 'Category name is required.');
-            redirect('admin/categories.php');
+            redirect('manage_portal_x92/categories.php');
         }
 
         try {
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log($e->getMessage());
             flash('error', 'Could not save category. Category name or slug must be unique.');
         }
-        redirect('admin/categories.php');
+        redirect('manage_portal_x92/categories.php');
     }
 
     if ($action === 'delete') {
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         db()->prepare('DELETE FROM categories WHERE id = ?')->execute([$id]);
 
         flash('success', 'Category deleted. Associated products are now marked as uncategorised.');
-        redirect('admin/categories.php');
+        redirect('manage_portal_x92/categories.php');
     }
 }
 
@@ -82,7 +82,7 @@ admin_header('Category Management'); ?>
         <p style="margin-top: 15px;">
             <button class="button">Save Category</button>
             <?php if ($edit): ?>
-                <a class="button secondary" href="<?= e(url('admin/categories.php')) ?>">Cancel</a>
+                <a class="button secondary" href="<?= e(url('manage_portal_x92/categories.php')) ?>">Cancel</a>
             <?php endif; ?>
         </p>
     </form>
@@ -108,7 +108,7 @@ admin_header('Category Management'); ?>
                         <td><code>/index.php?category=<?= e($c['slug']) ?></code></td>
                         <td><span class="status" style="padding: 2px 8px; border-radius: 4px; font-weight: bold; background: #e8f8f5; color: #27ae60;"><?= (int)$c['product_count'] ?> items</span></td>
                         <td style="display: flex; gap: 8px; align-items: center;">
-                            <a class="button secondary" style="padding: 4px 8px; font-size: 12px;" href="<?= e(url('admin/categories.php?edit=' . $c['id'])) ?>">Edit</a>
+                            <a class="button secondary" style="padding: 4px 8px; font-size: 12px;" href="<?= e(url('manage_portal_x92/categories.php?edit=' . $c['id'])) ?>">Edit</a>
 
                             <form method="post" onsubmit="return confirm('Delete category <?= e($c['name']) ?>? Products in this category will become uncategorised.');" style="margin: 0;">
                                 <?= csrf_field() ?>

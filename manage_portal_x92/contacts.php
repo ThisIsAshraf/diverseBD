@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$msg || $replyMessage === '') {
             flash('error', 'Reply message cannot be empty.');
-            redirect('admin/contacts.php' . ($id ? '?id=' . $id : ''));
+            redirect('manage_portal_x92/contacts.php' . ($id ? '?id=' . $id : ''));
         }
 
         $subject = 'Re: ' . $msg['subject'];
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('error', 'Could not send email. Please verify SMTP settings in your .env file.');
         }
 
-        redirect('admin/contacts.php?id=' . $id);
+        redirect('manage_portal_x92/contacts.php?id=' . $id);
     }
 
     if ($action === 'update_status') {
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             db()->prepare('UPDATE contacts SET status=? WHERE id=?')->execute([$status, $id]);
             flash('success', 'Message status updated.');
         }
-        redirect('admin/contacts.php' . ($id ? '?id=' . $id : ''));
+        redirect('manage_portal_x92/contacts.php' . ($id ? '?id=' . $id : ''));
     }
 }
 
@@ -68,7 +68,7 @@ admin_header('Contact messages'); ?>
     <div class="panel" style="margin-bottom:20px">
         <div class="section-heading">
             <h2><?= e($detail['subject']) ?></h2>
-            <a href="<?= e(url('admin/contacts.php')) ?>">← Back</a>
+            <a href="<?= e(url('manage_portal_x92/contacts.php')) ?>">← Back</a>
         </div>
         <p><b><?= e($detail['name']) ?></b> · <a href="mailto:<?= e($detail['email']) ?>"><?= e($detail['email']) ?></a> · <?= e($detail['created_at']) ?></p>
 
@@ -125,7 +125,7 @@ admin_header('Contact messages'); ?>
                         <td><?= e($c['name']) ?><br><span class="muted small"><?= e($c['email']) ?></span></td>
                         <td><?= e($c['subject']) ?></td>
                         <td><span class="status"><?= e($c['status']) ?></span></td>
-                        <td><a href="<?= e(url('admin/contacts.php?id=' . $c['id'])) ?>">Open</a></td>
+                        <td><a href="<?= e(url('manage_portal_x92/contacts.php?id=' . $c['id'])) ?>">Open</a></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$contacts): ?>

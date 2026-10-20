@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($postUrl === '') {
             flash('error', 'Target post or page URL is required.');
-            redirect('admin/social.php');
+            redirect('manage_portal_x92/social.php');
         }
 
         if ($id) {
@@ -41,21 +41,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $s->execute([$platform, $title, $postUrl, $img, $sortOrder, $active]);
         }
         flash('success', 'Social post saved.');
-        redirect('admin/social.php');
+        redirect('manage_portal_x92/social.php');
     }
 
     if ($action === 'toggle') {
         $id = (int)($_POST['id'] ?? 0);
         db()->prepare('UPDATE social_links SET active=1-active WHERE id=?')->execute([$id]);
         flash('success', 'Post status updated.');
-        redirect('admin/social.php');
+        redirect('manage_portal_x92/social.php');
     }
 
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         db()->prepare('DELETE FROM social_links WHERE id=?')->execute([$id]);
         flash('success', 'Social post deleted.');
-        redirect('admin/social.php');
+        redirect('manage_portal_x92/social.php');
     }
 }
 
@@ -93,7 +93,7 @@ admin_header('Social Media Feed'); ?>
             <div class="field"><label>Or Image URL</label><input name="image_url" value="<?= e($edit['image_url'] ?? '') ?>" placeholder="uploads/social.jpg"></div>
         </div>
         <label><input style="width:auto" type="checkbox" name="active" value="1" <?= (!$edit || !empty($edit['active'])) ? 'checked' : '' ?>> Visible on storefront</label>
-        <p style="margin-top:15px;"><button>Save Post</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('admin/social.php')) ?>">Cancel</a><?php endif; ?></p>
+        <p style="margin-top:15px;"><button>Save Post</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('manage_portal_x92/social.php')) ?>">Cancel</a><?php endif; ?></p>
     </form>
 </div>
 
@@ -127,7 +127,7 @@ admin_header('Social Media Feed'); ?>
                         <td><?= (int)$sp['sort_order'] ?></td>
                         <td><?= !empty($sp['active']) ? 'Active' : 'Hidden' ?></td>
                         <td style="display:flex; gap:6px;">
-                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('admin/social.php?edit=' . $sp['id'])) ?>">Edit</a>
+                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('manage_portal_x92/social.php?edit=' . $sp['id'])) ?>">Edit</a>
                             <form method="post" style="display:inline; margin:0;"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?= $sp['id'] ?>"><button class="button secondary" style="padding:4px 8px; font-size:12px;"><?= !empty($sp['active']) ? 'Hide' : 'Show' ?></button></form>
                             <form method="post" style="display:inline; margin:0;" onsubmit="return confirm('Delete this card?')"><?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $sp['id'] ?>"><button class="button secondary" style="padding:4px 8px; font-size:12px; background:#fde8e8; color:#e74c3c;">Delete</button></form>
                         </td>

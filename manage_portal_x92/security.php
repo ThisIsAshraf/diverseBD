@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $maxSessions = max(1, (int)($_POST['max_admin_sessions'] ?? 2));
         site_setting_save('max_admin_sessions', (string)$maxSessions);
         flash('success', 'Maximum concurrent session limit updated to ' . $maxSessions . '.');
-        redirect('admin/security.php');
+        redirect('manage_portal_x92/security.php');
     }
 
     // Revoke Remote Session
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             db()->prepare('DELETE FROM admin_sessions WHERE id = ?')->execute([$sessId]);
             flash('success', 'Remote session revoked successfully.');
         }
-        redirect('admin/security.php');
+        redirect('manage_portal_x92/security.php');
     }
 }
 
@@ -75,7 +75,7 @@ admin_header('Admin Security & Session Control'); ?>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($activeSessions as $s): 
+                <?php foreach ($activeSessions as $s):
                     $isCurrent = ($s['id'] === session_id());
                 ?>
                     <tr>
@@ -105,7 +105,9 @@ admin_header('Admin Security & Session Control'); ?>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$activeSessions): ?>
-                    <tr><td colspan="6" style="text-align:center; padding:20px;">No active sessions.</td></tr>
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding:20px;">No active sessions.</td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>

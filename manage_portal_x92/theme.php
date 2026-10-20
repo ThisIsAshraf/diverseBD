@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         site_setting_save('social_youtube', trim((string)($_POST['social_youtube'] ?? '')));
 
         flash('success', 'Storefront theme, footer, and social links updated successfully.');
-        redirect('admin/theme.php');
+        redirect('manage_portal_x92/theme.php');
     }
 
     if ($action === 'apply_preset') {
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         flash('success', 'Applied ' . ucfirst($preset) . ' theme preset.');
-        redirect('admin/theme.php');
+        redirect('manage_portal_x92/theme.php');
     }
 }
 

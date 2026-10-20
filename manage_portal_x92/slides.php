@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($title === '') {
             flash('error', 'Slide title is required.');
-            redirect('admin/slides.php');
+            redirect('manage_portal_x92/slides.php');
         }
 
         if ($id) {
@@ -42,21 +42,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $s->execute([$title, $subtitle, $eyebrow, $buttonText, $buttonUrl, $img, $sortOrder, $active]);
         }
         flash('success', 'Hero slide saved.');
-        redirect('admin/slides.php');
+        redirect('manage_portal_x92/slides.php');
     }
 
     if ($action === 'toggle') {
         $id = (int)($_POST['id'] ?? 0);
         db()->prepare('UPDATE hero_slides SET active=1-active WHERE id=?')->execute([$id]);
         flash('success', 'Slide state updated.');
-        redirect('admin/slides.php');
+        redirect('manage_portal_x92/slides.php');
     }
 
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         db()->prepare('DELETE FROM hero_slides WHERE id=?')->execute([$id]);
         flash('success', 'Slide deleted.');
-        redirect('admin/slides.php');
+        redirect('manage_portal_x92/slides.php');
     }
 }
 
@@ -87,7 +87,7 @@ admin_header('Hero Banner Slides'); ?>
         </div>
         <div class="field"><label>Subtitle / Description</label><textarea name="subtitle"><?= e($edit['subtitle'] ?? '') ?></textarea></div>
         <label><input style="width:auto" type="checkbox" name="active" value="1" <?= (!$edit || !empty($edit['active'])) ? 'checked' : '' ?>> Active on homepage</label>
-        <p style="margin-top:15px;"><button>Save Slide</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('admin/slides.php')) ?>">Cancel</a><?php endif; ?></p>
+        <p style="margin-top:15px;"><button>Save Slide</button> <?php if ($edit): ?><a class="button secondary" href="<?= e(url('manage_portal_x92/slides.php')) ?>">Cancel</a><?php endif; ?></p>
     </form>
 </div>
 
@@ -120,7 +120,7 @@ admin_header('Hero Banner Slides'); ?>
                         <td><?= (int)$sl['sort_order'] ?></td>
                         <td><?= !empty($sl['active']) ? 'Active' : 'Hidden' ?></td>
                         <td style="display:flex; gap:6px;">
-                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('admin/slides.php?edit=' . $sl['id'])) ?>">Edit</a>
+                            <a class="button secondary" style="padding:4px 8px; font-size:12px;" href="<?= e(url('manage_portal_x92/slides.php?edit=' . $sl['id'])) ?>">Edit</a>
                             <form method="post" style="display:inline; margin:0;"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?= $sl['id'] ?>"><button class="button secondary" style="padding:4px 8px; font-size:12px;"><?= !empty($sl['active']) ? 'Hide' : 'Show' ?></button></form>
                             <form method="post" style="display:inline; margin:0;" onsubmit="return confirm('Delete this slide?')"><?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $sl['id'] ?>"><button class="button secondary" style="padding:4px 8px; font-size:12px; background:#fde8e8; color:#e74c3c;">Delete</button></form>
                         </td>
