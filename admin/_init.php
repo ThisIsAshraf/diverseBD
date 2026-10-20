@@ -23,6 +23,7 @@ function admin_header(string $title): void
                 <a href="<?= e(url('admin/reports.php')) ?>">Sales reports</a>
                 <a href="<?= e(url('admin/coupons.php')) ?>">Discounts & promotions</a>
                 <a href="<?= e(url('admin/customers.php')) ?>">Customers</a>
+                <a href="<?= e(url('admin/users.php')) ?>">Customer Account Management</a>
                 <a href="<?= e(url('admin/contacts.php')) ?>">Contact messages</a>
                 <a href="<?= e(url('admin/settings.php')) ?>">Store branding</a>
                 <a href="<?= e(url('admin/theme.php')) ?>">Storefront Theme</a>

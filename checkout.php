@@ -10,6 +10,15 @@ $couponCode = (string)($_SESSION['coupon_code'] ?? '');
 $discount = 0;
 $coupon = null;
 
+// Check if customer is logged in to pre-fill saved details
+$u = function_exists('current_user') ? current_user() : null;
+
+$defaultName    = $u['name'] ?? (string)($_POST['customer_name'] ?? '');
+$defaultEmail   = $u['email'] ?? (string)($_POST['customer_email'] ?? '');
+$defaultPhone   = $u['phone'] ?? (string)($_POST['customer_phone'] ?? '');
+$defaultAddress = $u['address'] ?? (string)($_POST['address'] ?? '');
+$defaultCity    = $u['city'] ?? (string)($_POST['city'] ?? '');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
     if (isset($_POST['apply_coupon'])) {
@@ -27,12 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('checkout.php');
     }
 
-    $name = trim((string)($_POST['customer_name'] ?? ''));
-    $email = trim((string)($_POST['customer_email'] ?? ''));
-    $phone = trim((string)($_POST['customer_phone'] ?? ''));
+    $name    = trim((string)($_POST['customer_name'] ?? ''));
+    $email   = trim((string)($_POST['customer_email'] ?? ''));
+    $phone   = trim((string)($_POST['customer_phone'] ?? ''));
     $address = trim((string)($_POST['address'] ?? ''));
-    $city = trim((string)($_POST['city'] ?? ''));
-    $notes = trim((string)($_POST['notes'] ?? ''));
+    $city    = trim((string)($_POST['city'] ?? ''));
+    $notes   = trim((string)($_POST['notes'] ?? ''));
 
     if (mb_strlen($name) < 2) $errors[] = 'Please enter your full name.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Please enter a valid email address.';
@@ -69,8 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo = db();
             $pdo->beginTransaction();
-            $ins = $pdo->prepare('INSERT INTO orders(order_number,customer_name,customer_email,customer_phone,address,city,notes,payment_method,status,subtotal,discount_amount,shipping_amount,total,coupon_code) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $ins->execute([$orderNo, $name, $email, $phone, $address, $city, $notes, 'COD', 'pending', $subtotal, $discount, $shipping, $total, $coupon['code'] ?? null]);
+
+            // Link order to logged in user if account exists
+            $userId = $u['id'] ?? null;
+
+            $ins = $pdo->prepare('INSERT INTO orders(user_id,order_number,customer_name,customer_email,customer_phone,address,city,notes,payment_method,status,subtotal,discount_amount,shipping_amount,total,coupon_code) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $ins->execute([$userId, $orderNo, $name, $email, $phone, $address, $city, $notes, 'COD', 'pending', $subtotal, $discount, $shipping, $total, $coupon['code'] ?? null]);
             $orderId = (int)$pdo->lastInsertId();
 
             $line = $pdo->prepare('INSERT INTO order_items(order_id,product_id,product_name,sku,quantity,unit_price,line_total) VALUES(?,?,?,?,?,?,?)');
@@ -130,6 +143,12 @@ require_once __DIR__ . '/app/header.php'; ?>
 <h1 class="page-title">Checkout</h1>
 <p class="muted">Cash on delivery · No online payment required</p>
 
+<?php if ($u): ?>
+    <div class="notice success" style="margin-bottom:20px;">
+        Logged in as <b><?= e($u['name']) ?></b> (<?= e($u['email']) ?>). Your saved details have been automatically filled below.
+    </div>
+<?php endif; ?>
+
 <?php if ($errors): ?>
     <div class="notice error">
         <ul><?php foreach ($errors as $err): ?><li><?= e($err) ?></li><?php endforeach; ?></ul>
@@ -140,13 +159,13 @@ require_once __DIR__ . '/app/header.php'; ?>
     <form method="post" class="panel">
         <?= csrf_field() ?>
         <h2>Delivery details</h2>
-        <div class="field"><label>Full name *</label><input name="customer_name" required value="<?= e((string)($_POST['customer_name'] ?? '')) ?>"></div>
+        <div class="field"><label>Full name *</label><input name="customer_name" required value="<?= e($defaultName) ?>"></div>
         <div class="form-grid">
-            <div class="field"><label>Email address *</label><input type="email" name="customer_email" required value="<?= e((string)($_POST['customer_email'] ?? '')) ?>"></div>
-            <div class="field"><label>Phone number *</label><input name="customer_phone" required value="<?= e((string)($_POST['customer_phone'] ?? '')) ?>"></div>
+            <div class="field"><label>Email address *</label><input type="email" name="customer_email" required value="<?= e($defaultEmail) ?>"></div>
+            <div class="field"><label>Phone number *</label><input name="customer_phone" required value="<?= e($defaultPhone) ?>"></div>
         </div>
-        <div class="field"><label>Full delivery address *</label><textarea name="address" required><?= e((string)($_POST['address'] ?? '')) ?></textarea></div>
-        <div class="field"><label>City / Area *</label><input name="city" required value="<?= e((string)($_POST['city'] ?? '')) ?>"></div>
+        <div class="field"><label>Full delivery address *</label><textarea name="address" required><?= e($defaultAddress) ?></textarea></div>
+        <div class="field"><label>City / Area *</label><input name="city" required value="<?= e($defaultCity) ?>"></div>
         <div class="field"><label>Order notes (optional)</label><textarea name="notes"><?= e((string)($_POST['notes'] ?? '')) ?></textarea></div>
         <div class="notice success">Payment method: <b>Cash on delivery</b>. Pay the delivery person when your order arrives.</div>
         <button style="width:100%">Place order · <?= money($subtotal - $discount) ?></button>

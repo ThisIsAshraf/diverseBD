@@ -89,6 +89,17 @@ $cssUrl = preg_replace('/^https?:/', '', url('assets/style.css'));
             <a href="<?= e(url('track-order.php')) ?>">Track Order</a>
             <a href="<?= e(url('contact.php')) ?>">Contact</a>
             <a class="cart-link" href="<?= e(url('cart.php')) ?>">Bag (<?= cart_count() ?>)</a>
+            <a href="<?= e(url('index.php')) ?>">Shop</a>
+            <a href="<?= e(url('cart.php')) ?>">Bag (<?= cart_count() ?>)</a>
+
+            <?php if ($u = current_user()): ?>
+                <!-- Shown when customer is logged in -->
+                <a href="<?= e(url('account.php')) ?>">Account (<?= e($u['name']) ?>)</a>
+                <a href="<?= e(url('user_logout.php')) ?>" class="muted">Log out</a>
+            <?php else: ?>
+                <!-- Shown when customer is a guest -->
+                <a href="<?= e(url('user_login.php')) ?>">Log in</a>
+            <?php endif; ?>
         </nav>
     </header>
     <main class="container">

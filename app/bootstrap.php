@@ -545,3 +545,72 @@ if (!function_exists('email_order_customer')) {
         );
     }
 }
+
+// Check if Customer is Logged In
+if (!function_exists('current_user')) {
+    function current_user(): ?array
+    {
+        if (empty($_SESSION['user_id'])) return null;
+        static $user = null;
+        if ($user !== null) return $user;
+
+        try {
+            $st = db()->prepare('SELECT * FROM users WHERE id = ? AND status = "active"');
+            $st->execute([$_SESSION['user_id']]);
+            $user = $st->fetch() ?: null;
+            if (!$user) unset($_SESSION['user_id']); // Revoke invalid sessions
+            return $user;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+}
+
+// Ensure User Is Authenticated
+if (!function_exists('user_required')) {
+    function user_required(): array
+    {
+        $u = current_user();
+        if (!$u) {
+            flash('error', 'Please log in or register to access your account.');
+            redirect('login.php');
+        }
+        return $u;
+    }
+}
+
+// Send Signup Welcome Email
+if (!function_exists('email_user_welcome')) {
+    function email_user_welcome(array $user): void
+    {
+        $subject = 'Welcome to ' . store_name() . '!';
+        $html = '
+        <div style="font-family:Arial,sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #eee; border-radius:8px;">
+            <h2 style="color:' . site_setting('invoice_color', '#2c3e50') . ';">Welcome, ' . e($user['name']) . '!</h2>
+            <p>Thank you for creating an account with <b>' . e(store_name()) . '</b>.</p>
+            <p>Your account allows you to place orders faster without filling out your details every time.</p>
+            <p><a href="' . e(url('login.php')) . '" style="background:' . site_setting('invoice_color', '#2c3e50') . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Log In to Your Account</a></p>
+        </div>';
+        send_store_email($user['email'], $user['name'], $subject, $html);
+    }
+}
+
+// Send Temporary Password Email
+if (!function_exists('email_user_password_reset')) {
+    function email_user_password_reset(string $email, string $name, string $tempPassword): void
+    {
+        $subject = 'Password Reset Request - ' . store_name();
+        $html = '
+        <div style="font-family:Arial,sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #eee; border-radius:8px;">
+            <h3 style="color:' . site_setting('invoice_color', '#2c3e50') . ';">Password Reset Request</h3>
+            <p>Hello <b>' . e($name) . '</b>,</p>
+            <p>We generated a temporary password for your account as requested:</p>
+            <div style="background:#f4f4f4; padding:12px; font-size:18px; font-weight:bold; letter-spacing:2px; text-align:center; border-radius:6px; margin:15px 0;">
+                ' . e($tempPassword) . '
+            </div>
+            <p>Please log in using this temporary password and update it immediately in your account settings.</p>
+            <p><a href="' . e(url('login.php')) . '" style="background:' . site_setting('invoice_color', '#2c3e50') . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Log In Now</a></p>
+        </div>';
+        send_store_email($email, $name, $subject, $html);
+    }
+}

@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // SMTP Settings 
         $mailHost = trim((string)($_POST['mail_host'] ?? 'smtp.gmail.com'));
         $mailPort = trim((string)($_POST['mail_port'] ?? '587'));
-        $mailEnc = trim((string)($_POST['mail_encryption'] ?? 'tls'));
+        $mailEnc  = trim((string)($_POST['mail_encryption'] ?? 'tls'));
         $mailUser = trim((string)($_POST['mail_username'] ?? ''));
         $mailPass = trim((string)($_POST['mail_password'] ?? ''));
         $fromAddr = trim((string)($_POST['mail_from_address'] ?? ''));
@@ -47,7 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Invoice Customizations
         $invoiceColor = trim((string)($_POST['invoice_color'] ?? '#2c3e50'));
-        $invoiceNote = trim((string)($_POST['invoice_footer_note'] ?? 'Thank you for shopping with us!'));
+        $invoiceNote  = trim((string)($_POST['invoice_footer_note'] ?? 'Thank you for shopping with us!'));
+
+        // Store Guarantee / Trust Badges Customization
+        $trustKeys = [
+            'trust_badge_1_title',
+            'trust_badge_1_sub',
+            'trust_badge_2_title',
+            'trust_badge_2_sub',
+            'trust_badge_3_title',
+            'trust_badge_3_sub',
+            'trust_badge_4_title',
+            'trust_badge_4_sub'
+        ];
+        foreach ($trustKeys as $tk) {
+            if (isset($_POST[$tk])) {
+                site_setting_save($tk, trim((string)$_POST[$tk]));
+            }
+        }
 
         if ($name === '') {
             flash('error', 'Please enter a valid store name.');
@@ -99,20 +116,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        flash('success', 'Store configuration, mail credentials, and invoice settings updated successfully.');
+        flash('success', 'Store configuration, mail credentials, homepage badges, and invoice settings updated successfully.');
         redirect('admin/settings.php');
     }
 }
 
 admin_header($title);
 $currentLogo = site_setting('logo_url', '');
-$adminEmail = site_setting('admin_notification_email', envv('ADMIN_NOTIFICATION_EMAIL', ''));
-$currency = site_setting('currency_symbol', envv('CURRENCY', '৳'));
+$adminEmail  = site_setting('admin_notification_email', envv('ADMIN_NOTIFICATION_EMAIL', ''));
+$currency    = site_setting('currency_symbol', envv('CURRENCY', '৳'));
 
 // SMTP Settings 
 $mailHost = site_setting('mail_host', envv('MAIL_HOST', 'smtp.gmail.com'));
 $mailPort = site_setting('mail_port', envv('MAIL_PORT', '587'));
-$mailEnc = site_setting('mail_encryption', envv('MAIL_ENCRYPTION', 'tls'));
+$mailEnc  = site_setting('mail_encryption', envv('MAIL_ENCRYPTION', 'tls'));
 $mailUser = site_setting('mail_username', envv('MAIL_USERNAME', ''));
 $mailPass = site_setting('mail_password', envv('MAIL_PASSWORD', ''));
 $fromAddr = site_setting('mail_from_address', envv('MAIL_FROM_ADDRESS', ''));
@@ -120,7 +137,7 @@ $fromName = site_setting('mail_from_name', envv('MAIL_FROM_NAME', store_name()))
 
 // Invoice Settings
 $invoiceColor = site_setting('invoice_color', '#2c3e50');
-$invoiceNote = site_setting('invoice_footer_note', 'Thank you for shopping with us!');
+$invoiceNote  = site_setting('invoice_footer_note', 'Thank you for shopping with us!');
 ?>
 
 <div class="panel" style="max-width:800px; margin-bottom:25px;">
@@ -194,6 +211,48 @@ $invoiceNote = site_setting('invoice_footer_note', 'Thank you for shopping with 
             <div class="field" style="grid-column: span 2;">
                 <label>Sender From Name</label>
                 <input name="mail_from_name" value="<?= e($fromName) ?>">
+            </div>
+        </div>
+
+        <hr style="margin:25px 0; border:0; border-top:1px solid var(--line,#eee);">
+
+        <h2>Homepage Store Guarantees / Badges</h2>
+        <p class="muted small" style="margin-top:-5px; margin-bottom:15px;">Customize the titles and subtitles for the 4 highlight boxes on the storefront.</p>
+        <div class="form-grid">
+            <div class="field">
+                <label>Badge 1 Title (🚀 Shipping)</label>
+                <input name="trust_badge_1_title" value="<?= e(site_setting('trust_badge_1_title', 'Nationwide Shipping')) ?>">
+            </div>
+            <div class="field">
+                <label>Badge 1 Subtitle</label>
+                <input name="trust_badge_1_sub" value="<?= e(site_setting('trust_badge_1_sub', 'Fast delivery across Bangladesh')) ?>">
+            </div>
+
+            <div class="field">
+                <label>Badge 2 Title (💵 Payment)</label>
+                <input name="trust_badge_2_title" value="<?= e(site_setting('trust_badge_2_title', 'Cash on Delivery')) ?>">
+            </div>
+            <div class="field">
+                <label>Badge 2 Subtitle</label>
+                <input name="trust_badge_2_sub" value="<?= e(site_setting('trust_badge_2_sub', 'Pay safely at your doorstep')) ?>">
+            </div>
+
+            <div class="field">
+                <label>Badge 3 Title (✨ Quality)</label>
+                <input name="trust_badge_3_title" value="<?= e(site_setting('trust_badge_3_title', 'Premium Fabric')) ?>">
+            </div>
+            <div class="field">
+                <label>Badge 3 Subtitle</label>
+                <input name="trust_badge_3_sub" value="<?= e(site_setting('trust_badge_3_sub', 'Crafted for long-lasting comfort')) ?>">
+            </div>
+
+            <div class="field">
+                <label>Badge 4 Title (🔄 Exchange)</label>
+                <input name="trust_badge_4_title" value="<?= e(site_setting('trust_badge_4_title', 'Hassle-Free Exchange')) ?>">
+            </div>
+            <div class="field">
+                <label>Badge 4 Subtitle</label>
+                <input name="trust_badge_4_sub" value="<?= e(site_setting('trust_badge_4_sub', 'Easy returns & order support')) ?>">
             </div>
         </div>
 
