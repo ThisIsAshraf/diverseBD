@@ -26,6 +26,7 @@ function admin_header(string $title): void
                 <a href="<?= e(url('manage_portal_x92/users.php')) ?>">Customer Account Management</a>
                 <a href="<?= e(url('manage_portal_x92/contacts.php')) ?>">Contact messages</a>
                 <a href="<?= e(url('manage_portal_x92/settings.php')) ?>">Store branding</a>
+                <a href="<?= e(url('manage_portal_x92/popup.php')) ?>">Manage PopUp Banner</a>
                 <a href="<?= e(url('manage_portal_x92/theme.php')) ?>">Storefront Theme</a>
                 <a href="<?= e(url('manage_portal_x92/stock-logs.php')) ?>">Stock logs</a>
                 <a href="<?= e(url('manage_portal_x92/slides.php')) ?>">Hero Banner Slides</a>

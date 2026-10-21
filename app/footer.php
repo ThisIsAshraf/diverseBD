@@ -108,6 +108,181 @@ $socials = [
     </div>
 </footer>
 
+<?php
+// Load Dynamic Pop-up Offer Banner Settings
+$popEnabled = site_setting('popup_enabled', '0');
+if ($popEnabled === '1'):
+    $popTitle   = site_setting('popup_title', 'Special Offer');
+    $popMessage = site_setting('popup_message', 'Explore our current collection sale!');
+    $popImg     = site_setting('popup_image_url', '');
+    $popBtnText = site_setting('popup_button_text', 'Shop Offer');
+    $popBtnUrl  = site_setting('popup_button_url', 'index.php#shop');
+
+    // Format Image Source
+    $popImgSrc = '';
+    if (!empty($popImg)) {
+        if (str_starts_with($popImg, 'http://') || str_starts_with($popImg, 'https://')) {
+            $popImgSrc = $popImg;
+        } else {
+            $popImgSrc = url($popImg);
+        }
+    }
+?>
+
+    <!-- Pop-up Overlay CSS -->
+    <style>
+        .offer-popup-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: 20px;
+        }
+
+        .offer-popup-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .offer-popup-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: scale(0.85);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .offer-popup-backdrop.active .offer-popup-card {
+            transform: scale(1);
+        }
+
+        .offer-popup-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+
+        .offer-popup-close:hover {
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        .offer-popup-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .offer-popup-body {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .offer-popup-body h3 {
+            font-size: 22px;
+            margin: 0 0 10px 0;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .offer-popup-body p {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .offer-popup-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 20px;
+            background: #25483d;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: background 0.2s;
+        }
+
+        .offer-popup-btn:hover {
+            background: #1b352c;
+        }
+    </style>
+
+    <!-- Pop-up Overlay HTML -->
+    <div id="offerPopupBackdrop" class="offer-popup-backdrop">
+        <div class="offer-popup-card">
+            <button type="button" class="offer-popup-close" onclick="closeOfferPopup()">✕</button>
+
+            <?php if (!empty($popImgSrc)): ?>
+                <img src="<?= e($popImgSrc) ?>" alt="<?= e($popTitle) ?>" class="offer-popup-img">
+            <?php endif; ?>
+
+            <div class="offer-popup-body">
+                <h3><?= e($popTitle) ?></h3>
+                <p><?= e($popMessage) ?></p>
+                <a href="<?= e(url($popBtnUrl)) ?>" class="offer-popup-btn"><?= e($popBtnText) ?> →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pop-up Display Logic -->
+    <script>
+        function showOfferPopup() {
+            const modal = document.getElementById("offerPopupBackdrop");
+            if (modal) {
+                modal.classList.add("active");
+            }
+        }
+
+        function closeOfferPopup() {
+            const modal = document.getElementById("offerPopupBackdrop");
+            if (modal) {
+                modal.classList.remove("active");
+            }
+        }
+
+        // Trigger pop-up display automatically on page load
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", function() {
+                setTimeout(showOfferPopup, 800);
+            });
+        } else {
+            setTimeout(showOfferPopup, 800);
+        }
+    </script>
+<?php endif; ?>
+
 </body>
 
 </html>
