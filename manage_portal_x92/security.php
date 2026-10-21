@@ -19,6 +19,7 @@ $availablePermissions = [
     'slides'     => 'Hero Banner Slides',
     'social'     => 'Social Media Feed',
     'reviews'    => 'Customer Reviews',
+    'analytics' => 'Traffic & Sales Analytics',
 ];
 
 // Handle Form Actions
