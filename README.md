@@ -105,3 +105,15 @@ From DBSchema Folder import the .sql file
     HTTPS Enforcement: Always run under SSL/TLS in production to secure session cookies and HTTP Basic Auth headers.
 
     Session Persistence: Modify max_admin_sessions directly in security.php or site_settings table to enforce concurrency caps across your team.
+
+## 🔌 REST API Documentation (`/api/v1`)
+
+The platform features a secure, scoped RESTful API for third-party integrations (mobile apps, courier partners, external CRMs, and Single Sign-On).
+
+### Authentication & Headers
+
+All requests must include a valid API key via the `X-API-KEY` header or a `Bearer` token in the `Authorization` header:
+
+```http
+X-API-KEY: db_your_generated_api_key_here
+```

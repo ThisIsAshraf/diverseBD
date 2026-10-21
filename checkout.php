@@ -75,6 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $total = max(0, $subtotal - $discount) + $shipping;
         $orderNo = 'DVBD' . date('ymd') . strtoupper(bin2hex(random_bytes(3)));
 
+        // Generate a unique tracking code for internal & API tracking
+        $trackingNumber = 'TRK-' . strtoupper(bin2hex(random_bytes(4)));
+
         try {
             $pdo = db();
             $pdo->beginTransaction();
@@ -82,8 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Link order to logged in user if account exists
             $userId = $u['id'] ?? null;
 
-            $ins = $pdo->prepare('INSERT INTO orders(user_id,order_number,customer_name,customer_email,customer_phone,address,city,notes,payment_method,status,subtotal,discount_amount,shipping_amount,total,coupon_code) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $ins->execute([$userId, $orderNo, $name, $email, $phone, $address, $city, $notes, 'COD', 'pending', $subtotal, $discount, $shipping, $total, $coupon['code'] ?? null]);
+            $ins = $pdo->prepare('INSERT INTO orders(user_id,order_number,customer_name,customer_email,customer_phone,address,city,notes,payment_method,status,subtotal,discount_amount,shipping_amount,total,coupon_code,tracking_number) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $ins->execute([$userId, $orderNo, $name, $email, $phone, $address, $city, $notes, 'COD', 'pending', $subtotal, $discount, $shipping, $total, $coupon['code'] ?? null, $trackingNumber]);
             $orderId = (int)$pdo->lastInsertId();
 
             $line = $pdo->prepare('INSERT INTO order_items(order_id,product_id,product_name,sku,quantity,unit_price,line_total) VALUES(?,?,?,?,?,?,?)');
