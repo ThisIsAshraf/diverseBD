@@ -2,7 +2,11 @@
 require_once __DIR__ . '/bootstrap.php';
 
 $storeName = store_name();
-$pageTitle = $pageTitle ?? $storeName;
+$pageTitle = $pageTitle ?? site_setting('seo_meta_title', 'Shop Modern Clothing & Wardrobe Essentials');
+$metaDesc  = $metaDescription ?? site_setting('seo_meta_description', 'Discover modern clothing, premium wardrobe staples, and new season drops with nationwide Cash on Delivery in Bangladesh.');
+$metaKeys  = $metaKeywords ?? site_setting('seo_meta_keywords', 'clothing, fashion, online shop, bangladesh, modern fit, wardrobe');
+$ogImage   = $ogImage ?? site_setting('seo_og_image', site_setting('logo_url', ''));
+
 $announcement = site_setting('announcement', 'New season, new essentials — free delivery offers may apply');
 
 // Fetch Storefront Theme Preferences
@@ -35,6 +39,7 @@ $footerFont  = site_setting('font_footer_family', 'Inter, sans-serif');
 $footerSize  = site_setting('font_footer_size', '14');
 
 $cssUrl = preg_replace('/^https?:/', '', url('assets/style.css'));
+$currentUrl = url($_SERVER['REQUEST_URI'] ?? '');
 ?>
 <!doctype html>
 <html lang="en">
@@ -42,8 +47,24 @@ $cssUrl = preg_replace('/^https?:/', '', url('assets/style.css'));
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= e($pageTitle) ?> | <?= e($storeName) ?></title>
 
+    <!-- Dynamic SEO Meta Tags -->
+    <title><?= e($pageTitle) ?> | <?= e($storeName) ?></title>
+    <meta name="description" content="<?= e($metaDesc) ?>">
+    <meta name="keywords" content="<?= e($metaKeys) ?>">
+    <link rel="canonical" href="<?= e($currentUrl) ?>">
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn Cards) -->
+    <meta property="og:site_name" content="<?= e($storeName) ?>">
+    <meta property="og:title" content="<?= e($pageTitle) ?> | <?= e($storeName) ?>">
+    <meta property="og:description" content="<?= e($metaDesc) ?>">
+    <meta property="og:url" content="<?= e($currentUrl) ?>">
+    <meta property="og:type" content="website">
+    <?php if ($ogImage !== ''): ?>
+        <meta property="og:image" content="<?= e(str_starts_with($ogImage, 'http') ? $ogImage : url($ogImage)) ?>">
+    <?php endif; ?>
+
+    <!-- Search Engine Ownership Verification -->
     <meta name="google-site-verification" content="vyZTQMWGBgop0OdB97oEAbU1p4rZsjmSJkxrn5UM_Kg" />
 
     <!-- Google Web Fonts Preload -->

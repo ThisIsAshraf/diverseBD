@@ -53,13 +53,26 @@ $b3Sub   = site_setting('trust_badge_3_sub', 'Crafted for long-lasting comfort')
 $b4Title = site_setting('trust_badge_4_title', 'Hassle-Free Exchange');
 $b4Sub   = site_setting('trust_badge_4_sub', 'Easy returns & order support');
 
-$pageTitle = 'Shop Modern Clothing & Wardrobe Essentials';
+// --- Dynamic SEO Management Settings ---
+$pageTitle       = site_setting('seo_meta_title', 'Shop Modern Clothing & Wardrobe Essentials \vert{} DiverseBD');
+$metaDescription = site_setting('seo_meta_description', 'Discover modern clothing, premium wardrobe staples, and new season drops with nationwide Cash on Delivery in Bangladesh.');
+$metaKeywords    = site_setting('seo_meta_keywords', 'clothing, fashion, online shop, bangladesh, modern fit, wardrobe');
+$ogImage         = site_setting('seo_og_image', site_setting('logo_url', ''));
+
+// Dynamic Page Overrides based on category or search query
+if ($cat) {
+    $catName = ucfirst(str_replace('-', ' ', $cat));
+    $pageTitle = e($catName) . ' Collection | ' . store_name();
+    $metaDescription = 'Explore our ' . e($catName) . ' collection. Premium quality apparel delivered nationwide.';
+} elseif ($q) {
+    $pageTitle = 'Search results for "' . e($q) . '" | ' . store_name();
+}
+
 require_once __DIR__ . '/app/header.php';
 ?>
 
 <!-- Embedded Modern Styling Overrides for Homepage -->
 <style>
-    /* Hero Slider Visuals */
     .hero-slider-container {
         position: relative;
         overflow: hidden;
@@ -95,7 +108,6 @@ require_once __DIR__ . '/app/header.php';
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     }
 
-    /* Trust & Guarantee Badges */
     .trust-badge-card {
         background: #fff;
         padding: 22px 18px;
@@ -110,7 +122,6 @@ require_once __DIR__ . '/app/header.php';
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
     }
 
-    /* Visual Category Grid */
     .category-card {
         background: #fff;
         border: 1px solid var(--line, #eee);
@@ -128,7 +139,6 @@ require_once __DIR__ . '/app/header.php';
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
     }
 
-    /* Modern Product Grid Cards */
     .product-card {
         background: #fff;
         border-radius: 12px;
@@ -243,8 +253,7 @@ require_once __DIR__ . '/app/header.php';
 <?php if ($slides && $q === '' && $cat === ''): ?>
     <section class="hero-slider-container">
         <div class="hero-slides-wrapper">
-            <?php foreach ($slides as $idx => $sl): $bgImage = !empty($sl['image_url']) ? 'url(' . e(url($sl['image_url'])) . ')' : 'none';
-            ?>
+            <?php foreach ($slides as $idx => $sl): $bgImage = !empty($sl['image_url']) ? 'url(' . e(url($sl['image_url'])) . ')' : 'none'; ?>
                 <div class="hero-slide-item" style="background-image: <?= $bgImage ?>;">
                     <div class="hero-glass-card">
                         <?php if ($sl['eyebrow']): ?>
@@ -385,8 +394,6 @@ require_once __DIR__ . '/app/header.php';
 <?php else: ?>
     <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px;">
         <?php foreach ($products as $p): $imgSrc = $p['image_url'] ? (str_starts_with($p['image_url'], 'http') ? $p['image_url'] : url($p['image_url'])) : 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800';
-
-            // Calculate Discount Percentage
             $discountPct = 0;
             if (!empty($p['compare_price']) && $p['compare_price'] > $p['price']) {
                 $discountPct = round((($p['compare_price'] - $p['price']) / $p['compare_price']) * 100);
@@ -395,11 +402,9 @@ require_once __DIR__ . '/app/header.php';
             <article class="product-card">
                 <a class="product-image-container" href="<?= e(url('product.php?slug=' . urlencode($p['slug']))) ?>">
                     <img loading="lazy" src="<?= e($imgSrc) ?>" alt="<?= e($p['name']) ?>">
-
                     <?php if ($discountPct > 0): ?>
                         <span class="badge-discount">-<?= $discountPct ?>% OFF</span>
                     <?php endif; ?>
-
                     <?php if ((int)$p['stock'] < 1): ?>
                         <span class="badge-soldout">Sold Out</span>
                     <?php endif; ?>
@@ -464,8 +469,7 @@ if ($socialItems):
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px;">
-            <?php foreach ($socialItems as $s): $img = $s['image_url'] ? (str_starts_with($s['image_url'], 'http') ? $s['image_url'] : url($s['image_url'])) : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500';
-            ?>
+            <?php foreach ($socialItems as $s): $img = $s['image_url'] ? (str_starts_with($s['image_url'], 'http') ? $s['image_url'] : url($s['image_url'])) : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500'; ?>
                 <a href="<?= e($s['post_url']) ?>" target="_blank" rel="noopener" style="display:block; text-decoration:none; color:inherit; border-radius:10px; overflow:hidden; border:1px solid #eee; transition:transform 0.25s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
                     <div style="aspect-ratio:1/1; overflow:hidden;">
                         <img src="<?= e($img) ?>" alt="<?= e($s['platform']) ?>" style="width:100%; height:100%; object-fit:cover;">

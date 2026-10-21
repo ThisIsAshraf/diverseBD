@@ -38,6 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $adminEmail = trim((string)($_POST['admin_notification_email'] ?? ''));
         $currency = trim((string)($_POST['currency_symbol'] ?? '৳'));
 
+        // SEO Settings
+        $seoTitle = trim((string)($_POST['seo_meta_title'] ?? ''));
+        $seoDesc  = trim((string)($_POST['seo_meta_description'] ?? ''));
+        $seoKeys  = trim((string)($_POST['seo_meta_keywords'] ?? ''));
+        $seoOgImg = trim((string)($_POST['seo_og_image'] ?? ''));
+
         // SMTP Settings 
         $mailHost = trim((string)($_POST['mail_host'] ?? 'smtp.gmail.com'));
         $mailPort = trim((string)($_POST['mail_port'] ?? '587'));
@@ -82,6 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         site_setting_save('admin_notification_email', $adminEmail);
         site_setting_save('currency_symbol', $currency);
 
+        // Save SEO Settings
+        site_setting_save('seo_meta_title', $seoTitle);
+        site_setting_save('seo_meta_description', $seoDesc);
+        site_setting_save('seo_meta_keywords', $seoKeys);
+        site_setting_save('seo_og_image', $seoOgImg);
+
         // Save SMTP Credentials 
         site_setting_save('mail_host', $mailHost);
         site_setting_save('mail_port', $mailPort);
@@ -124,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        flash('success', 'Store configuration, mail credentials, email templates, and guarantee badges updated.');
+        flash('success', 'Store configuration, SEO meta tags, mail credentials, and template settings updated.');
         redirect('manage_portal_x92/settings.php');
     }
 }
@@ -133,6 +145,12 @@ admin_header($title);
 $currentLogo = site_setting('logo_url', '');
 $adminEmail  = site_setting('admin_notification_email', envv('ADMIN_NOTIFICATION_EMAIL', ''));
 $currency    = site_setting('currency_symbol', envv('CURRENCY', '৳'));
+
+// SEO Settings
+$seoTitle = site_setting('seo_meta_title', 'Shop Modern Clothing & Wardrobe Essentials');
+$seoDesc  = site_setting('seo_meta_description', 'Discover modern clothing, premium wardrobe staples, and new season drops with nationwide Cash on Delivery in Bangladesh.');
+$seoKeys  = site_setting('seo_meta_keywords', 'clothing, fashion, online shop, bangladesh, modern fit, wardrobe');
+$seoOgImg = site_setting('seo_og_image', '');
 
 // SMTP Settings 
 $mailHost = site_setting('mail_host', envv('MAIL_HOST', 'smtp.gmail.com'));
@@ -186,6 +204,30 @@ $invoiceNote   = site_setting('invoice_footer_note', 'Thank you for shopping wit
                 <img src="<?= e(url($currentLogo)) ?>" style="max-height: 40px; display: block; margin: 8px 0;">
                 <label><input type="checkbox" name="remove_logo" value="1" style="width:auto"> Remove logo</label>
             <?php endif; ?>
+        </div>
+
+        <hr style="margin:25px 0; border:0; border-top:1px solid var(--line,#eee);">
+
+        <h2>🔍 Search Engine Optimization (SEO & Social Sharing)</h2>
+        <div class="field">
+            <label>Default Homepage Meta Title</label>
+            <input name="seo_meta_title" value="<?= e($seoTitle) ?>" placeholder="Shop Modern Clothing & Wardrobe Essentials">
+        </div>
+
+        <div class="field">
+            <label>Default Meta Description (Google snippet text)</label>
+            <textarea name="seo_meta_description" rows="3" placeholder="Describe your store in 150-160 characters..."><?= e($seoDesc) ?></textarea>
+        </div>
+
+        <div class="field">
+            <label>Meta Keywords (Comma separated)</label>
+            <input name="seo_meta_keywords" value="<?= e($seoKeys) ?>" placeholder="clothing, fashion, online shop, bangladesh">
+        </div>
+
+        <div class="field">
+            <label>Social Share Preview Image URL (Facebook, WhatsApp, Twitter)</label>
+            <input name="seo_og_image" value="<?= e($seoOgImg) ?>" placeholder="storage/uploads/social-banner.jpg">
+            <p class="small muted">Optional. If empty, defaults to store logo.</p>
         </div>
 
         <hr style="margin:25px 0; border:0; border-top:1px solid var(--line,#eee);">
