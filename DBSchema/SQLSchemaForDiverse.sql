@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 20, 2026 at 09:27 PM
+-- Generation Time: Oct 21, 2026 at 11:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -63,28 +63,6 @@ CREATE TABLE `admin_login_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `admin_login_logs`
---
-
-INSERT INTO `admin_login_logs` (`id`, `admin_id`, `email_attempted`, `ip_address`, `user_agent`, `status`, `created_at`) VALUES
-(12, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 08:37:59'),
-(13, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 11:42:11'),
-(14, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 11:53:12'),
-(15, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:32:44'),
-(16, 2, 'shihab@az.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:44:05'),
-(17, 2, 'shihab@az.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:45:22'),
-(18, 2, 'shihab@az.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 12:52:14'),
-(19, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 14:06:08'),
-(20, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 17:38:25'),
-(21, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 17:38:53'),
-(22, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 17:38:58'),
-(23, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 17:41:52'),
-(24, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 17:50:10'),
-(25, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-20 17:50:29'),
-(26, 4, 'alamshihab526@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 18:36:24'),
-(27, 4, 'alamshihab526@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-20 18:41:30');
-
 -- --------------------------------------------------------
 
 --
@@ -99,13 +77,24 @@ CREATE TABLE `admin_sessions` (
   `last_activity` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `admin_sessions`
+-- Table structure for table `api_keys`
 --
 
-INSERT INTO `admin_sessions` (`id`, `admin_id`, `ip_address`, `user_agent`, `last_activity`) VALUES
-('505vd5kblur71cohsohijq0o21', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-20 19:20:26'),
-('a5nn1c0k78uqitk7pd8gpqklpd', 4, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', '2026-10-20 18:41:30');
+CREATE TABLE `api_keys` (
+  `id` int(11) NOT NULL,
+  `key_name` varchar(100) NOT NULL,
+  `api_key` varchar(64) NOT NULL,
+  `secret_token` varchar(255) NOT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `scopes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`scopes`)),
+  `rate_limit` int(11) DEFAULT 1000,
+  `requests_count` int(11) DEFAULT 0,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -119,13 +108,6 @@ CREATE TABLE `categories` (
   `slug` varchar(120) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `categories`
---
-
-INSERT INTO `categories` (`id`, `name`, `slug`, `created_at`) VALUES
-(1, 'Test', 'test', '2026-10-20 11:54:47');
 
 -- --------------------------------------------------------
 
@@ -142,13 +124,6 @@ CREATE TABLE `contacts` (
   `status` enum('new','read','replied','closed') NOT NULL DEFAULT 'new',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `contacts`
---
-
-INSERT INTO `contacts` (`id`, `name`, `email`, `subject`, `message`, `status`, `created_at`) VALUES
-(1, 'Aiatul', 'aiatulador75@gmail.com', 'Ki Obosota', 'Valo na. Access lagbo', 'replied', '2026-10-20 14:20:05');
 
 -- --------------------------------------------------------
 
@@ -171,16 +146,6 @@ CREATE TABLE `coupons` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `coupons`
---
-
-INSERT INTO `coupons` (`id`, `code`, `discount_type`, `discount_value`, `min_order`, `max_discount`, `usage_limit`, `used_count`, `starts_at`, `ends_at`, `active`, `created_at`) VALUES
-(1, 'WELCOME10', 'percent', 10.00, 1000.00, 500.00, 100, 0, NULL, NULL, 1, '2026-10-18 10:22:06'),
-(2, 'SAVE200', 'fixed', 200.00, 2000.00, NULL, 50, 0, NULL, NULL, 1, '2026-10-18 10:22:06'),
-(3, 'SUMMER15', 'percent', 10.00, 1.00, 1.00, 100, 0, NULL, '2026-10-19 16:52:00', 0, '2026-10-18 10:52:58'),
-(4, 'JIHAD10', 'fixed', 100.00, 500.00, 0.00, 10, 0, NULL, '2026-10-21 01:32:00', 1, '2026-10-19 19:32:06');
-
 -- --------------------------------------------------------
 
 --
@@ -200,13 +165,6 @@ CREATE TABLE `hero_slides` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `hero_slides`
---
-
-INSERT INTO `hero_slides` (`id`, `title`, `subtitle`, `eyebrow`, `button_text`, `button_url`, `image_url`, `sort_order`, `active`, `created_at`) VALUES
-(1, 'Notun Titlre', 'fghfhfhfhfh', 'SUMMEr Sales', 'Explore Collection', '?category=panjabi', 'uploads/hero_1792439216_c7e42b.jpg', 1, 1, '2026-10-19 19:46:22');
-
 -- --------------------------------------------------------
 
 --
@@ -225,6 +183,7 @@ CREATE TABLE `orders` (
   `notes` text DEFAULT NULL,
   `payment_method` enum('COD') NOT NULL DEFAULT 'COD',
   `status` enum('pending','confirmed','processing','shipped','delivered','cancelled','returned') NOT NULL DEFAULT 'pending',
+  `tracking_number` varchar(100) DEFAULT NULL,
   `subtotal` decimal(10,2) NOT NULL,
   `discount_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
   `shipping_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -233,15 +192,6 @@ CREATE TABLE `orders` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `orders`
---
-
-INSERT INTO `orders` (`id`, `user_id`, `order_number`, `customer_name`, `customer_email`, `customer_phone`, `address`, `city`, `notes`, `payment_method`, `status`, `subtotal`, `discount_amount`, `shipping_amount`, `total`, `coupon_code`, `created_at`, `updated_at`) VALUES
-(1, 1, 'DVBD26102066BF94', 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', '01982401992', 'Test Address', 'Dhaka', '', 'COD', 'pending', 12.00, 0.00, 0.00, 12.00, NULL, '2026-10-20 11:59:50', '2026-10-20 11:59:50'),
-(2, 2, 'DVBD261020C8D5EF', 'Aiatul', 'aiatulador75@gmail.com', '01799589913', 'Test Address', 'Dhaka', 'Twat ioess', 'COD', 'shipped', 12.00, 0.00, 0.00, 12.00, NULL, '2026-10-20 14:10:04', '2026-10-20 14:13:59'),
-(3, 3, 'DVBD26102017A033', 'CloudOrder', 'learn.azsystem@gmail.com', '01982401992', 'Test Address', 'Dhaka', '', 'COD', 'confirmed', 12.00, 0.00, 0.00, 12.00, NULL, '2026-10-20 17:53:34', '2026-10-20 17:54:33');
 
 -- --------------------------------------------------------
 
@@ -260,15 +210,6 @@ CREATE TABLE `order_items` (
   `line_total` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `order_items`
---
-
-INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `product_name`, `sku`, `quantity`, `unit_price`, `line_total`) VALUES
-(1, 1, 1, 'Everyday Oversized Blazer', 'FGE', 1, 12.00, 12.00),
-(2, 2, 1, 'Everyday Oversized Blazer', 'FGE', 1, 12.00, 12.00),
-(3, 3, 1, 'Everyday Oversized Blazer', 'FGE', 1, 12.00, 12.00);
-
 -- --------------------------------------------------------
 
 --
@@ -283,18 +224,6 @@ CREATE TABLE `order_status_history` (
   `changed_by` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `order_status_history`
---
-
-INSERT INTO `order_status_history` (`id`, `order_id`, `status`, `note`, `changed_by`, `created_at`) VALUES
-(1, 1, 'pending', 'Order placed by customer', NULL, '2026-10-20 11:59:50'),
-(2, 2, 'pending', 'Order placed by customer', NULL, '2026-10-20 14:10:04'),
-(3, 2, 'confirmed', 'Status updated in admin panel to Confirmed (Official Invoice sent to customer)', 1, '2026-10-20 14:12:11'),
-(4, 2, 'shipped', 'Status updated in admin panel to Shipped', 1, '2026-10-20 14:13:59'),
-(5, 3, 'pending', 'Order placed by customer', NULL, '2026-10-20 17:53:34'),
-(6, 3, 'confirmed', 'Status updated in admin panel to Confirmed (Official Invoice sent to customer)', 1, '2026-10-20 17:54:33');
 
 -- --------------------------------------------------------
 
@@ -317,13 +246,6 @@ CREATE TABLE `products` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `products`
---
-
-INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `description`, `price`, `compare_price`, `image_url`, `stock`, `active`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Everyday Oversized Blazer', 'everyday-oversized-blazer', 'FGE', 'sss', 12.00, NULL, 'uploads/prod_1792497287_5d57e7bd.png', 17, 1, '2026-10-20 11:54:47', '2026-10-20 17:53:34');
 
 -- --------------------------------------------------------
 
@@ -435,13 +357,6 @@ CREATE TABLE `social_links` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `social_links`
---
-
-INSERT INTO `social_links` (`id`, `platform`, `title`, `post_url`, `image_url`, `sort_order`, `active`, `created_at`) VALUES
-(1, 'Facebook', 'xdcszvsvs', 'https://www.facebook.com/ashraful.alam.984813', 'uploads/social_1792506200_bf198c.png', 0, 1, '2026-10-20 14:23:20');
-
 -- --------------------------------------------------------
 
 --
@@ -459,14 +374,6 @@ CREATE TABLE `stock_logs` (
   `note` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `stock_logs`
---
-
-INSERT INTO `stock_logs` (`id`, `product_id`, `admin_id`, `change_type`, `quantity`, `old_stock`, `new_stock`, `note`, `created_at`) VALUES
-(1, 1, 1, 'add', 10, 10, 20, 'Notun Mal Aysa', '2026-10-20 14:24:11'),
-(2, 1, 1, 'subtract', 2, 20, 18, '2 ta nosto', '2026-10-20 14:24:54');
 
 -- --------------------------------------------------------
 
@@ -506,15 +413,6 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `phone`, `address`, `city`, `status`, `reset_token`, `reset_token_expires`, `created_at`, `updated_at`) VALUES
-(1, 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', '$2y$10$PHhvDhGBXfraX5axL31nA.1Vfah6vu1zUNXVcNsC6FKEpd1KV9m7u', '01982401992', 'Test Address', 'Dhaka', 'active', NULL, NULL, '2026-10-20 11:53:59', '2026-10-20 11:53:59'),
-(2, 'Aiatul', 'aiatulador75@gmail.com', '$2y$10$balhzB4Oju5jMtG3SqSxqOC1QWyy34gKSFhcVDv1LC0uOLz66wL.q', '01799589913', 'Test Address', 'Dhaka', 'active', NULL, NULL, '2026-10-20 14:08:32', '2026-10-20 14:16:05'),
-(3, 'CloudOrder', 'learn.azsystem@gmail.com', '$2y$10$vwllGHjsN2u7tbnEqaj0neDNCzr5.rry/D/Ak36fWvHTMswRLCspy', '01982401992', 'Test Address', 'Dhaka', 'active', NULL, NULL, '2026-10-20 17:53:01', '2026-10-20 17:53:01');
-
---
 -- Indexes for dumped tables
 --
 
@@ -538,6 +436,13 @@ ALTER TABLE `admin_login_logs`
 ALTER TABLE `admin_sessions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_admin_sessions_admin` (`admin_id`);
+
+--
+-- Indexes for table `api_keys`
+--
+ALTER TABLE `api_keys`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `api_key` (`api_key`);
 
 --
 -- Indexes for table `categories`
@@ -655,55 +560,61 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `admin_login_logs`
 --
 ALTER TABLE `admin_login_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `api_keys`
+--
+ALTER TABLE `api_keys`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `contacts`
 --
 ALTER TABLE `contacts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `hero_slides`
 --
 ALTER TABLE `hero_slides`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `product_images`
@@ -715,13 +626,13 @@ ALTER TABLE `product_images`
 -- AUTO_INCREMENT for table `social_links`
 --
 ALTER TABLE `social_links`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `stock_logs`
 --
 ALTER TABLE `stock_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `testimonials`
@@ -733,7 +644,7 @@ ALTER TABLE `testimonials`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
