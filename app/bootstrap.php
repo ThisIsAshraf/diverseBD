@@ -725,3 +725,17 @@ if (!function_exists('sync_htpasswd_user')) {
         return file_put_contents($htpasswdPath, implode("\n", $updatedLines) . "\n") !== false;
     }
 }
+
+// Automatic Traffic Logger (Ignores admin portal requests)
+if (!str_contains($_SERVER['REQUEST_URI'] ?? '', '/manage_portal_x92/')) {
+    try {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $url = substr($_SERVER['REQUEST_URI'] ?? '/', 0, 255);
+        $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
+
+        $stmt = db()->prepare("INSERT INTO visitor_logs (ip_address, page_url, user_agent) VALUES (?, ?, ?)");
+        $stmt->execute([$ip, $url, $ua]);
+    } catch (Throwable $e) {
+        // Silently ignore log errors to keep website running smoothly
+    }
+}

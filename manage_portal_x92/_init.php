@@ -32,6 +32,7 @@ function admin_header(string $title): void
                 <a href="<?= e(url('manage_portal_x92/social.php')) ?>">Social Media Feed</a>
                 <a href="<?= e(url('manage_portal_x92/testimonials.php')) ?>">Customer Reviews</a>
                 <a href="<?= e(url('manage_portal_x92/api_keys.php')) ?>">API Integrations</a>
+                <a href="<?= e(url('manage_portal_x92/analytics.php')) ?>">Analytics & Traffic</a>
                 <a href="<?= e(url('manage_portal_x92/security.php')) ?>">Admin Security & Sessions</a>
                 <a href="<?= e(url('index.php')) ?>" target="_blank">View storefront ↗</a>
                 <a href="<?= e(url('manage_portal_x92/logout.php')) ?>">Sign out</a>
