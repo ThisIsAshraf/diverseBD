@@ -7,6 +7,7 @@ $db = db();
 
 // Available Modules for Permission Assignment
 $availablePermissions = [
+    'analytics'  => 'Traffic & Sales Analytics',
     'products'   => 'Products & Inventory',
     'categories' => 'Categories',
     'orders'     => 'Order Management',
@@ -19,8 +20,27 @@ $availablePermissions = [
     'slides'     => 'Hero Banner Slides',
     'social'     => 'Social Media Feed',
     'reviews'    => 'Customer Reviews',
-    'analytics' => 'Traffic & Sales Analytics',
 ];
+
+// Helper Function to Parse Browser & Device Type from User Agent
+function parse_user_agent(?string $ua): array
+{
+    if (!$ua) return ['browser' => 'Unknown', 'device' => 'Desktop 💻'];
+
+    $device = 'Desktop 💻';
+    if (preg_match('/(mobile|android|iphone|ipad|ipod|blackberry|windows phone)/i', $ua)) {
+        $device = preg_match('/(ipad|tablet)/i', $ua) ? 'Tablet 📱' : 'Mobile 📱';
+    }
+
+    $browser = 'Browser';
+    if (str_contains($ua, 'Edg')) $browser = 'Edge';
+    elseif (str_contains($ua, 'Chrome')) $browser = 'Chrome';
+    elseif (str_contains($ua, 'Firefox')) $browser = 'Firefox';
+    elseif (str_contains($ua, 'Safari')) $browser = 'Safari';
+    elseif (str_contains($ua, 'OPR') || str_contains($ua, 'Opera')) $browser = 'Opera';
+
+    return ['browser' => $browser, 'device' => $device];
+}
 
 // Handle Form Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -96,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ins = $db->prepare('INSERT INTO admins (name, email, password_hash, role, is_super_admin, permissions) VALUES (?, ?, ?, ?, 0, ?)');
         $ins->execute([$name, $email, $passHash, $role, $permsJson]);
 
-        // Sync credentials to Apache .htpasswd file
         if (function_exists('sync_htpasswd_user')) {
             sync_htpasswd_user($email, $password);
         }
@@ -138,7 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $up = $db->prepare('UPDATE admins SET role = ?, password_hash = ?, permissions = ? WHERE id = ?');
             $up->execute([$role, $hash, $permsJson, $adminId]);
 
-            // Sync credentials to Apache .htpasswd file
             if (function_exists('sync_htpasswd_user') && !empty($targetAdmin['email'])) {
                 sync_htpasswd_user((string)$targetAdmin['email'], $password);
             }
@@ -178,6 +196,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('success', 'Administrator account removed successfully.');
         redirect('manage_portal_x92/security.php');
     }
+
+    // 5. Clear Old Login Logs
+    if ($action === 'clear_logs') {
+        if (!is_super_admin()) {
+            flash('error', 'Action denied: Only Super Admins can purge security logs.');
+            redirect('manage_portal_x92/security.php');
+        }
+        $db->query('DELETE FROM admin_login_logs');
+        flash('success', 'All login attempt logs have been cleared.');
+        redirect('manage_portal_x92/security.php');
+    }
 }
 
 admin_header($title);
@@ -189,6 +218,19 @@ $sessions = $db->query('
     JOIN admins a ON s.admin_id = a.id
     ORDER BY s.last_activity DESC
 ')->fetchAll();
+
+// Fetch Recent Login Attempts
+$loginLogs = [];
+try {
+    $loginLogs = $db->query('
+        SELECT id, admin_id, email_attempted, ip_address, user_agent, status, created_at 
+        FROM admin_login_logs 
+        ORDER BY id DESC 
+        LIMIT 25
+    ')->fetchAll();
+} catch (Throwable $e) {
+    // Graceful fallback
+}
 
 $editingAdminId = (int)($_GET['edit'] ?? 0);
 $currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
@@ -205,7 +247,6 @@ $currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
         </div>
 
         <?php if (is_super_admin()): ?>
-            <!-- Session Limit Control Form -->
             <form method="post" style="display:flex; align-items:center; gap:10px; background:#f8f9fa; padding:8px 12px; border-radius:6px; border:1px solid #e0e0e0;">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="update_max_sessions">
@@ -237,7 +278,9 @@ $currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
                         <span class="small muted"><?= e($s['admin_email']) ?></span>
                         <?= $s['is_super_admin'] ? '<span style="background:#2c3e50; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">SUPER ADMIN</span>' : '' ?>
                     </td>
-                    <td style="padding:10px;"><code><?= e($s['ip_address']) ?></code></td>
+                    <td style="padding:10px;">
+                        <code><?= e($s['ip_address']) ?></code>
+                    </td>
                     <td style="padding:10px; font-size:12px; color:#555; max-width:200px; word-break:break-word;">
                         <?= e($s['user_agent']) ?>
                     </td>
@@ -262,7 +305,78 @@ $currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
     </table>
 </div>
 
-<!-- Section 2: Role-Based Admin Account Management -->
+<!-- Section 2: Login Attempt Audit Logs (Failed & Successful) -->
+<div class="panel" style="margin-bottom:25px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <div>
+            <h2 style="margin:0;">Login Attempt Audit Log</h2>
+            <p class="muted small" style="margin:4px 0 0 0;">
+                Tracks all successful and failed admin sign-in attempts with device detection & IP Geolocation lookups.
+            </p>
+        </div>
+        <?php if (is_super_admin() && !empty($loginLogs)): ?>
+            <form method="post" onsubmit="return confirm('Purge all login audit logs?');">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="clear_logs">
+                <button class="button secondary" style="padding:5px 12px; font-size:12px;">Clear Audit Log</button>
+            </form>
+        <?php endif; ?>
+    </div>
+
+    <?php if (empty($loginLogs)): ?>
+        <p class="muted" style="padding:15px; text-align:center;">No recent login logs recorded.</p>
+    <?php else: ?>
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background:#f4f6f8; text-align:left; border-bottom:2px solid #eee;">
+                    <th style="padding:10px;">Status</th>
+                    <th style="padding:10px;">Email Attempted</th>
+                    <th style="padding:10px;">IP Address & Geolocation</th>
+                    <th style="padding:10px;">Device & Browser</th>
+                    <th style="padding:10px; text-align:right;">Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($loginLogs as $log): ?>
+                    <?php
+                    $uaData = parse_user_agent($log['user_agent']);
+                    $isSuccess = ($log['status'] === 'success');
+                    ?>
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:10px;">
+                            <?php if ($isSuccess): ?>
+                                <span style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-weight:bold; padding:3px 8px; border-radius:4px; font-size:11px;">
+                                    ✓ SUCCESS
+                                </span>
+                            <?php else: ?>
+                                <span style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:bold; padding:3px 8px; border-radius:4px; font-size:11px;">
+                                    ✕ FAILED
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                        <td style="padding:10px; font-weight:bold; font-size:13px;">
+                            <?= e($log['email_attempted']) ?>
+                        </td>
+                        <td style="padding:10px;">
+                            <code><?= e($log['ip_address']) ?></code>
+                            <a href="https://ipinfo.io/<?= e($log['ip_address']) ?>" target="_blank" rel="noopener" style="font-size:11px; margin-left:6px; color:#2563eb; text-decoration:none; font-weight:500;">
+                                🌐 Lookup Geo
+                            </a>
+                        </td>
+                        <td style="padding:10px; font-size:12px; color:#475569;">
+                            <b><?= $uaData['device'] ?></b> • <?= $uaData['browser'] ?>
+                        </td>
+                        <td style="padding:10px; text-align:right; font-size:12px; color:#64748b;">
+                            <?= date('d M Y, h:i A', strtotime($log['created_at'])) ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>
+
+<!-- Section 3: Role-Based Admin Account Management -->
 <div class="panel">
     <h2>Administrator Accounts & Privileges</h2>
 

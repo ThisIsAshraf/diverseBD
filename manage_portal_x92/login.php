@@ -7,8 +7,17 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 $error = null;
-$ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown Browser';
+
+// Secure IP Resolution (Prevents IP Spoofing)
+$rawIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+if (str_contains($rawIp, ',')) {
+    $ip = trim(explode(',', $rawIp)[0]); // Extract original client IP
+} else {
+    $ip = trim($rawIp);
+}
+
+// Truncate User-Agent string to prevent DB overflow errors
+$userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? 'Unknown Browser', 0, 500);
 
 // --- IP RATE LIMITING & LOCKOUT CHECK ---
 $lockoutMinutes = 15;
@@ -82,12 +91,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $log = db()->prepare('INSERT INTO admin_login_logs (admin_id, email_attempted, ip_address, user_agent, status) VALUES (?, ?, ?, ?, ?)');
             $log->execute([$admin['id'] ?? null, $email, $ip, $userAgent, 'failed']);
 
-            $remainingAttempts = $maxAllowedFailures - ($failedAttempts + 1);
+            $failedAttempts++; // Increment attempt counter
+            $remainingAttempts = $maxAllowedFailures - $failedAttempts;
+
             if ($remainingAttempts > 0) {
                 $error = "Invalid credentials. You have {$remainingAttempts} attempt(s) remaining before a 15-minute lockout.";
             } else {
                 $error = "Too many failed attempts. Your IP address has been temporarily locked out for 15 minutes.";
                 $isLockedOut = true;
+                $timeRemaining = $lockoutMinutes;
             }
         }
     }
