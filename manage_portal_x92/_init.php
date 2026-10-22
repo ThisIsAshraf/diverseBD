@@ -24,6 +24,7 @@ function admin_header(string $title): void
                 <a href="<?= e(url('manage_portal_x92/coupons.php')) ?>">Discounts & promotions</a>
                 <a href="<?= e(url('manage_portal_x92/customers.php')) ?>">Customers</a>
                 <a href="<?= e(url('manage_portal_x92/users.php')) ?>">Customer Account Management</a>
+                <a href="<?= e(url('manage_portal_x92/cities.php')) ?>">Delivery Locations & Rates</a>
                 <a href="<?= e(url('manage_portal_x92/contacts.php')) ?>">Contact messages</a>
                 <a href="<?= e(url('manage_portal_x92/settings.php')) ?>">Store branding</a>
                 <a href="<?= e(url('manage_portal_x92/popup.php')) ?>">Manage PopUp Banner</a>
@@ -34,6 +35,7 @@ function admin_header(string $title): void
                 <a href="<?= e(url('manage_portal_x92/testimonials.php')) ?>">Customer Reviews</a>
                 <a href="<?= e(url('manage_portal_x92/api_keys.php')) ?>">API Integrations</a>
                 <a href="<?= e(url('manage_portal_x92/analytics.php')) ?>">Analytics & Traffic</a>
+                <a href="<?= e(url('manage_portal_x92/maintenance.php')) ?>">Maintenance Mode</a>
                 <a href="<?= e(url('manage_portal_x92/security.php')) ?>">Admin Security & Sessions</a>
                 <a href="<?= e(url('index.php')) ?>" target="_blank">View storefront ↗</a>
                 <a href="<?= e(url('manage_portal_x92/logout.php')) ?>">Sign out</a>

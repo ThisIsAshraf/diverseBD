@@ -726,6 +726,109 @@ if (!function_exists('sync_htpasswd_user')) {
     }
 }
 
+// --- MAINTENANCE WINDOW ENFORCEMENT GUARD ---
+if (site_setting('maintenance_mode', '0') === '1') {
+    $reqUri = $_SERVER['REQUEST_URI'] ?? '';
+    $isAdminRoute = str_contains($reqUri, '/manage_portal_x92/') || str_contains($reqUri, '/admin/');
+
+    // Check if user is an active admin AND has explicitly requested live storefront preview mode (?preview=1)
+    $isLoggedInAdmin = !empty($_SESSION['admin_id']);
+    $isAdminPreview  = isset($_GET['preview']) || isset($_GET['admin_test']);
+
+    // Display Maintenance Page to all public visitors, customers, and admins NOT in explicit preview mode
+    if (!$isAdminRoute && (!$isLoggedInAdmin || !$isAdminPreview)) {
+        http_response_code(503);
+
+        // Send strict anti-cache headers so browsers never cache the live page during maintenance
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Cache-Control: post-check=0, pre-check=0', false);
+        header('Pragma: no-cache');
+        header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
+        header('Retry-After: 3600');
+
+        $mTitle = site_setting('maintenance_title', 'We’ll Be Right Back!');
+        $mMsg   = site_setting('maintenance_message', 'Our website is currently undergoing scheduled maintenance.');
+        $store  = store_name();
+        $logo   = site_setting('logo_url', '');
+?>
+        <!doctype html>
+        <html lang="en">
+
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title><?= e($mTitle) ?> · <?= e($store) ?></title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    background: #f8fafc;
+                    color: #1e293b;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    padding: 20px;
+                    box-sizing: border-box;
+                }
+
+                .m-card {
+                    background: #ffffff;
+                    max-width: 520px;
+                    width: 100%;
+                    padding: 40px 30px;
+                    border-radius: 16px;
+                    text-align: center;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+                    border: 1px solid #e2e8f0;
+                }
+
+                .m-card h1 {
+                    font-size: 26px;
+                    margin: 15px 0 10px 0;
+                    color: #0f172a;
+                }
+
+                .m-card p {
+                    font-size: 15px;
+                    color: #64748b;
+                    line-height: 1.6;
+                    margin-bottom: 25px;
+                }
+
+                .badge {
+                    background: #fef3c7;
+                    color: #92400e;
+                    font-size: 12px;
+                    font-weight: bold;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    display: inline-block;
+                }
+            </style>
+        </head>
+
+        <body>
+            <div class="m-card">
+                <?php if ($logo): ?>
+                    <img src="<?= e(url($logo)) ?>" alt="<?= e($store) ?>" style="max-height: 60px; margin-bottom: 10px;">
+                <?php else: ?>
+                    <div class="badge">🛠️ Under Maintenance</div>
+                <?php endif; ?>
+                <h1><?= e($mTitle) ?></h1>
+                <p><?= nl2br(e($mMsg)) ?></p>
+                <div style="font-size: 13px; color: #94a3b8;">&copy; <?= date('Y') ?> <?= e($store) ?>. All rights reserved.</div>
+            </div>
+        </body>
+
+        </html>
+<?php
+        exit;
+    }
+}
+
 // Automatic Traffic Logger (Ignores admin portal requests)
 if (!str_contains($_SERVER['REQUEST_URI'] ?? '', '/manage_portal_x92/')) {
     try {

@@ -109,9 +109,11 @@ $socials = [
 </footer>
 
 <?php
-// Load Dynamic Pop-up Offer Banner Settings
-$popEnabled = site_setting('popup_enabled', '0');
-if ($popEnabled === '1'):
+// Load Dynamic Pop-up Offer Banner Settings ONLY on the homepage (index.php)
+$currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
+$popEnabled  = site_setting('popup_enabled', '0');
+
+if ($popEnabled === '1' && ($currentPage === 'index.php' || $currentPage === '')):
     $popTitle   = site_setting('popup_title', 'Special Offer');
     $popMessage = site_setting('popup_message', 'Explore our current collection sale!');
     $popImg     = site_setting('popup_image_url', '');
@@ -272,7 +274,7 @@ if ($popEnabled === '1'):
             }
         }
 
-        // Trigger pop-up display automatically on page load
+        // Trigger pop-up display automatically on homepage load
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", function() {
                 setTimeout(showOfferPopup, 800);
