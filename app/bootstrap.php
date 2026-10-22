@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+// 1. Load Composer Autoloader at startup so PHPMailer & vendor libraries are globally indexed
+$autoload = dirname(__DIR__) . '/vendor/autoload.php';
+if (is_file($autoload)) {
+    require_once $autoload;
+}
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 // Tiny .env reader, no extra dependency required.
 $envFile = dirname(__DIR__) . '/.env';
 if (is_file($envFile)) {
@@ -30,7 +40,7 @@ if (!function_exists('db')) {
     {
         static $pdo = null;
         if ($pdo instanceof PDO) return $pdo;
-        $dsn = 'mysql:host=' . envv('DB_HOST', '127.0.0.1') . ';port=' . envv('DB_PORT', '3306') . ';dbname=' . envv('DB_NAME', 'diverse') . ';charset=utf8mb4';
+        $dsn = 'mysql:host=' . envv('DB_HOST', '127.0.0.1') . ';port=' . envv('DB_PORT', '3306') . ';dbname=' . envv('DB_NAME', 'diversebd') . ';charset=utf8mb4';
         $pdo = new PDO($dsn, envv('DB_USER', 'root'), envv('DB_PASS', ''), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false]);
         return $pdo;
     }
@@ -109,7 +119,7 @@ if (!function_exists('money')) {
 if (!function_exists('url')) {
     function url(string $path = ''): string
     {
-        return rtrim(envv('APP_URL', 'http://localhost/diverse'), '/') . '/' . ltrim($path, '/');
+        return rtrim(envv('APP_URL', 'http://localhost/diversebd'), '/') . '/' . ltrim($path, '/');
     }
 }
 
@@ -215,7 +225,7 @@ if (!function_exists('admin_required')) {
 
             db()->prepare('UPDATE admin_sessions SET last_activity = NOW() WHERE id = ?')->execute([session_id()]);
         } catch (Throwable $e) {
-            // Fallback if admin_sessions table is not installed yet
+            // Fallback
         }
     }
 }
@@ -241,9 +251,12 @@ if (!function_exists('send_store_email')) {
         if (!is_file($autoload) || $mailUser === '' || $mailPass === '') return false;
         require_once $autoload;
 
+        if (!class_exists(PHPMailer::class)) return false;
+
         try {
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail = new PHPMailer(true);
             $mail->isSMTP();
+
             $mail->Host       = $mailHost;
             $mail->SMTPAuth   = true;
             $mail->Username   = $mailUser;
@@ -252,7 +265,7 @@ if (!function_exists('send_store_email')) {
             $mail->SMTPSecure = $mailEnc;
             $mail->CharSet    = 'UTF-8';
 
-            // Bypass SSL Peer Verification for free shared hosting environments
+            // Bypass SSL Peer Verification for free shared hosting/local environments
             $mail->SMTPOptions = array(
                 'ssl' => array(
                     'verify_peer' => false,
@@ -268,7 +281,6 @@ if (!function_exists('send_store_email')) {
             $mail->Body    = $html;
             $mail->AltBody = strip_tags(str_replace(['<br>', '<br/>', '</p>'], "\n", $html));
 
-            // Attach Printable HTML Invoice if generated
             if ($attachmentContent !== '') {
                 $mail->addStringAttachment($attachmentContent, $attachmentFilename, 'base64', 'text/html');
             }
@@ -344,6 +356,10 @@ if (!function_exists('email_customer_order_placed')) {
                 </thead>
                 <tbody>
                     ' . $rows . '
+                    <tr>
+                        <td style="padding:8px 10px; font-size:13px; color:#666;">Delivery Charge</td>
+                        <td style="text-align:right; padding:8px 10px; font-size:13px; color:#666;">' . money($order['shipping_amount'] ?? 0) . '</td>
+                    </tr>
                     <tr style="font-size:16px; font-weight:bold; border-top:2px solid #ddd; background:#fdfdfd;">
                         <td style="padding:12px 10px; color:#222;">Total Due (COD)</td>
                         <td style="text-align:right; padding:12px 10px; color:' . $emailColor . ';">' . money($order['total']) . '</td>
@@ -382,10 +398,11 @@ if (!function_exists('email_admin_new_order')) {
                 <p style="margin:4px 0;"><b>Customer Name:</b> ' . e($order['customer_name']) . '</p>
                 <p style="margin:4px 0;"><b>Phone:</b> ' . e($order['customer_phone']) . '</p>
                 <p style="margin:4px 0;"><b>Email:</b> ' . e($order['customer_email']) . '</p>
+                <p style="margin:4px 0;"><b>Delivery Charge:</b> ' . money($order['shipping_amount'] ?? 0) . '</p>
                 <p style="margin:4px 0;"><b>Total Amount:</b> ' . money($order['total']) . ' (COD)</p>
             </div>
 
-            <p><a href="' . e(url('admin/orders.php?id=' . $order['id'])) . '" style="background:' . $emailColor . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Open Order in Admin Panel</a></p>
+            <p><a href="' . e(url('manage_portal_x92/orders.php?id=' . $order['id'])) . '" style="background:' . $emailColor . '; color:#fff; padding:10px 18px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block;">Open Order in Admin Panel</a></p>
         </div>';
 
         send_store_email($adminEmail, 'Store Admin', $subject, $html);
@@ -499,7 +516,7 @@ if (!function_exists('email_order_customer')) {
         <div class="totals">
             <div><span>Subtotal:</span> <span>' . money($order['subtotal']) . '</span></div>
             <div><span>Discount:</span> <span style="color:#c0392b;">-' . money($order['discount_amount']) . '</span></div>
-            <div><span>Delivery:</span> <span>' . money($order['shipping_amount']) . '</span></div>
+            <div><span>Delivery Fee:</span> <span>' . money($order['shipping_amount']) . '</span></div>
             <hr style="border:0; border-top:1px solid #ddd; margin:8px 0;">
             <div style="font-size:16px; font-weight:bold; color:' . $emailColor . ';"><span>Total Due:</span> <span>' . money($order['total']) . '</span></div>
         </div>
@@ -636,7 +653,6 @@ if (!function_exists('email_user_password_reset')) {
         send_store_email($email, $name, $subject, $html);
     }
 }
-
 
 // Check if the currently logged-in admin is a Super Admin
 if (!function_exists('is_super_admin')) {
@@ -832,13 +848,13 @@ if (site_setting('maintenance_mode', '0') === '1') {
 // Automatic Traffic Logger (Ignores admin portal requests)
 if (!str_contains($_SERVER['REQUEST_URI'] ?? '', '/manage_portal_x92/')) {
     try {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $ip  = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         $url = substr($_SERVER['REQUEST_URI'] ?? '/', 0, 255);
-        $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
+        $ua  = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
 
         $stmt = db()->prepare("INSERT INTO visitor_logs (ip_address, page_url, user_agent) VALUES (?, ?, ?)");
         $stmt->execute([$ip, $url, $ua]);
     } catch (Throwable $e) {
-        // Silently ignore log errors to keep website running smoothly
+        // Silently ignore log errors
     }
 }

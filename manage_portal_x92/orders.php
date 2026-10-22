@@ -274,7 +274,7 @@ $logoUrl = site_setting('logo_url', '');
                     <span>-<?= money($detail['discount_amount']) ?></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:14px; color:#555;">
-                    <span>Shipping Fee:</span>
+                    <span>Delivery Fee:</span>
                     <span><?= money($detail['shipping_amount']) ?></span>
                 </div>
                 <hr style="margin:10px 0; border:0; border-top:1px solid #ddd;">

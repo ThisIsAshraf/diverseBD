@@ -10,6 +10,9 @@ $couponCode = (string)($_SESSION['coupon_code'] ?? '');
 $discount = 0;
 $coupon = null;
 
+// Fetch All Delivery Locations & Rates from DB
+$cities = db()->query('SELECT * FROM shipping_cities ORDER BY zone_code ASC, city_name ASC')->fetchAll();
+
 // Check if customer is logged in to pre-fill saved details
 $u = function_exists('current_user') ? current_user() : null;
 
@@ -17,7 +20,16 @@ $defaultName    = $u['name'] ?? (string)($_POST['customer_name'] ?? '');
 $defaultEmail   = $u['email'] ?? (string)($_POST['customer_email'] ?? '');
 $defaultPhone   = $u['phone'] ?? (string)($_POST['customer_phone'] ?? '');
 $defaultAddress = $u['address'] ?? (string)($_POST['address'] ?? '');
-$defaultCity    = $u['city'] ?? (string)($_POST['city'] ?? '');
+$selectedCity   = (string)($_POST['city'] ?? ($u['city'] ?? ($cities[0]['city_name'] ?? 'Dhaka')));
+
+// Calculate Active Shipping Fee for Selected City
+$shippingFee = 120.00; // Default outside Dhaka rate
+foreach ($cities as $c) {
+    if (strcasecmp($c['city_name'], $selectedCity) === 0) {
+        $shippingFee = (float)$c['shipping_cost'];
+        break;
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
@@ -47,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Please enter a valid email address.';
     if (mb_strlen($phone) < 7) $errors[] = 'Please enter a valid phone number.';
     if (mb_strlen($address) < 8) $errors[] = 'Please enter your delivery address.';
-    if ($city === '') $errors[] = 'Please enter your city or area.';
+    if ($city === '') $errors[] = 'Please select your delivery city or area.';
 
     foreach ($items as $i) {
         $s = db()->prepare('SELECT stock,active FROM products WHERE id=?');
@@ -71,18 +83,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($coupon['max_discount'] !== null) $discount = min($discount, (float)$coupon['max_discount']);
             } else $coupon = null;
         }
-        $shipping = 0;
+
+        // Calculate dynamic shipping based on selected city rate
+        $shipping = $shippingFee;
         $total = max(0, $subtotal - $discount) + $shipping;
         $orderNo = 'DVBD' . date('ymd') . strtoupper(bin2hex(random_bytes(3)));
 
-        // Generate a unique tracking code for internal & API tracking
+        // Generate a unique tracking code
         $trackingNumber = 'TRK-' . strtoupper(bin2hex(random_bytes(4)));
 
         try {
             $pdo = db();
             $pdo->beginTransaction();
 
-            // Link order to logged in user if account exists
             $userId = $u['id'] ?? null;
 
             $ins = $pdo->prepare('INSERT INTO orders(user_id,order_number,customer_name,customer_email,customer_phone,address,city,notes,payment_method,status,subtotal,discount_amount,shipping_amount,total,coupon_code,tracking_number) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
@@ -110,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $s->execute([$orderId]);
             $mailItems = $s->fetchAll();
 
-            // 1. Send Order Confirmation Receipt to Customer (No Invoice attached)
+            // 1. Send Order Confirmation Receipt to Customer
             email_customer_order_placed($order, $mailItems);
 
             // 2. Send New Order Alert to Admin
@@ -168,10 +181,22 @@ require_once __DIR__ . '/app/header.php'; ?>
             <div class="field"><label>Phone number *</label><input name="customer_phone" required value="<?= e($defaultPhone) ?>"></div>
         </div>
         <div class="field"><label>Full delivery address *</label><textarea name="address" required><?= e($defaultAddress) ?></textarea></div>
-        <div class="field"><label>City / Area *</label><input name="city" required value="<?= e($defaultCity) ?>"></div>
+
+        <!-- Dynamic City / Zone Selector -->
+        <div class="field">
+            <label>City / Zone *</label>
+            <select name="city" required onchange="this.form.submit()" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;">
+                <?php foreach ($cities as $c): ?>
+                    <option value="<?= e($c['city_name']) ?>" <?= strcasecmp($c['city_name'], $selectedCity) === 0 ? 'selected' : '' ?>>
+                        <?= e($c['city_name']) ?> (<?= $c['zone_code'] === 'inside_dhaka' ? 'Inside Dhaka' : 'Outside Dhaka' ?> — <?= money($c['shipping_cost']) ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
         <div class="field"><label>Order notes (optional)</label><textarea name="notes"><?= e((string)($_POST['notes'] ?? '')) ?></textarea></div>
         <div class="notice success">Payment method: <b>Cash on delivery</b>. Pay the delivery person when your order arrives.</div>
-        <button style="width:100%">Place order · <?= money($subtotal - $discount) ?></button>
+        <button style="width:100%">Place order · <?= money(max(0, $subtotal - $discount) + $shippingFee) ?></button>
     </form>
     <aside class="panel">
         <h2>Order summary</h2>
@@ -186,9 +211,9 @@ require_once __DIR__ . '/app/header.php'; ?>
         </form>
         <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Subtotal</span><span><?= money($subtotal) ?></span></div>
         <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Discount</span><span>-<?= money($discount) ?></span></div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Delivery</span><span>Free</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Delivery Charge</span><span><?= money($shippingFee) ?></span></div>
         <hr>
-        <div style="display:flex;justify-content:space-between;font-size:18px"><b>Total due</b><b><?= money($subtotal - $discount) ?></b></div>
+        <div style="display:flex;justify-content:space-between;font-size:18px"><b>Total due</b><b><?= money(max(0, $subtotal - $discount) + $shippingFee) ?></b></div>
     </aside>
 </div>
 <?php require_once __DIR__ . '/app/footer.php'; ?>

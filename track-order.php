@@ -17,12 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($orderNo !== '' || $contact !== '')
             SELECT * FROM orders 
             WHERE UPPER(order_number) = ? 
             AND (LOWER(customer_email) = ? OR customer_phone = ?)
+            LIMIT 1
         ');
         $s->execute([$orderNo, strtolower($contact), $contact]);
         $order = $s->fetch();
 
         if ($order) {
-            $s = db()->prepare('SELECT * FROM order_items WHERE order_id = ?');
+            $s = db()->prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id ASC');
             $s->execute([$order['id']]);
             $lines = $s->fetchAll();
 
@@ -49,7 +50,7 @@ require_once __DIR__ . '/app/header.php';
             <div class="form-grid">
                 <div class="field">
                     <label>Order Number *</label>
-                    <input name="order_number" required placeholder="e.g. TW2610186B89E4" value="<?= e($orderNo) ?>">
+                    <input name="order_number" required placeholder="e.g. DVBD2610186B89E4" value="<?= e($orderNo) ?>">
                 </div>
                 <div class="field">
                     <label>Email or Phone Number *</label>
@@ -87,7 +88,7 @@ require_once __DIR__ . '/app/header.php';
                 </div>
                 <div>
                     <b>Delivery Address</b>
-                    <p style="margin:4px 0 0 0; color:#555;"><?= nl2br(e($order['address'])) ?><br><?= e($order['city']) ?></p>
+                    <p style="margin:4px 0 0 0; color:#555;"><?= nl2br(e($order['address'])) ?><br><b><?= e($order['city']) ?></b></p>
                 </div>
             </div>
 
@@ -123,7 +124,7 @@ require_once __DIR__ . '/app/header.php';
                     <span>Discount</span><span style="color:#c0392b;">-<?= money($order['discount_amount']) ?></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <span>Delivery</span><span>Free</span>
+                    <span>Delivery Charge</span><span><?= money($order['shipping_amount']) ?></span>
                 </div>
                 <hr style="margin:8px 0; border:0; border-top:1px solid #ddd;">
                 <div style="display:flex; justify-content:space-between; font-size:18px;">
