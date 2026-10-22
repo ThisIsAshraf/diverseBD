@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 21, 2026 at 11:14 PM
+-- Generation Time: Oct 22, 2026 at 11:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -63,18 +63,6 @@ CREATE TABLE `admin_login_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `admin_login_logs`
---
-
-INSERT INTO `admin_login_logs` (`id`, `admin_id`, `email_attempted`, `ip_address`, `user_agent`, `status`, `created_at`) VALUES
-(1, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-21 09:53:00'),
-(2, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-21 13:40:17'),
-(3, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-21 14:08:23'),
-(4, 1, 'alam.office.my@gmail.com', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0', 'success', '2026-10-21 14:08:40'),
-(5, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-21 15:15:15'),
-(6, 1, 'alam.office.my@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'success', '2026-10-21 20:40:45');
-
 -- --------------------------------------------------------
 
 --
@@ -94,7 +82,7 @@ CREATE TABLE `admin_sessions` (
 --
 
 INSERT INTO `admin_sessions` (`id`, `admin_id`, `ip_address`, `user_agent`, `last_activity`) VALUES
-('qulf9erocbp1gc0tli5ivsdb4l', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-21 21:05:15');
+('km3tab6g7r2l19hkh6a8gvu4oi', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:55:30');
 
 -- --------------------------------------------------------
 
@@ -236,7 +224,10 @@ CREATE TABLE `orders` (
 INSERT INTO `orders` (`id`, `user_id`, `order_number`, `customer_name`, `customer_email`, `customer_phone`, `address`, `city`, `notes`, `payment_method`, `status`, `tracking_number`, `subtotal`, `discount_amount`, `shipping_amount`, `total`, `coupon_code`, `created_at`, `updated_at`) VALUES
 (1, 1, 'ORD-202610-001', 'Tanvir Ahmed', 'tanvir.ahmed@example.com', '01711223344', 'House 45, Road 11, Block D, Banani', 'Dhaka', 'Please call before delivery.', 'COD', 'pending', 'TRK-983214', 3340.00, 100.00, 60.00, 3300.00, 'WELCOME100', '2026-10-21 13:39:15', '2026-10-21 15:21:26'),
 (2, 2, 'ORD-202610-002', 'Nusrat Jahan', 'nusrat.jahan@example.com', '01811998877', 'Flat 4B, Green Road', 'Dhaka', 'Leave at front gate if not answered.', 'COD', 'pending', NULL, 2450.00, 0.00, 60.00, 2510.00, NULL, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
-(3, 3, 'ORD-202610-003', 'Rahim Chowdhury', 'rahim.c@example.com', '01911445566', 'GEC Circle, Nasirabad', 'Chittagong', NULL, 'COD', 'processing', 'TRK-445129', 2800.00, 0.00, 120.00, 2920.00, NULL, '2026-10-21 13:39:15', '2026-10-21 13:39:15');
+(3, 3, 'ORD-202610-003', 'Rahim Chowdhury', 'rahim.c@example.com', '01911445566', 'GEC Circle, Nasirabad', 'Chittagong', NULL, 'COD', 'processing', 'TRK-445129', 2800.00, 0.00, 120.00, 2920.00, NULL, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
+(10, 10, 'DVBD2610230AC688', 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', '01982401992', 'Test Address', 'Dhaka', '', 'COD', 'pending', 'TRK-45A61B23', 2800.00, 0.00, 0.00, 2800.00, NULL, '2026-10-22 19:10:14', '2026-10-22 19:10:14'),
+(11, 12, 'DVBD2610238BB659', 'Ash', 'hello.ash.ge@gmail.com', '01982401992', 'Test Address', 'Barishal', '', 'COD', 'pending', 'TRK-A0397A33', 2450.00, 0.00, 120.00, 2570.00, NULL, '2026-10-22 20:31:13', '2026-10-22 20:31:13'),
+(12, 12, 'DVBD26102357DDCD', 'Ash', 'hello.ash.ge@gmail.com', '01982401992', 'Test Address', 'Dhaka', '', 'COD', 'confirmed', 'TRK-FE1501F6', 2800.00, 0.00, 60.00, 2860.00, NULL, '2026-10-22 20:31:43', '2026-10-22 20:32:31');
 
 -- --------------------------------------------------------
 
@@ -263,7 +254,10 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `product_name`, `sku`
 (1, 1, 1, 'Slim Fit Oxford Cotton Shirt - Navy', 'SHIRT-NAVY-01', 1, 1450.00, 1450.00),
 (2, 1, 2, 'Vintage Wash Denim Jeans', 'JEANS-DENIM-02', 1, 1890.00, 1890.00),
 (3, 2, 3, 'Floral Print Lawn Kameez Set', 'KAMEEZ-FLORAL-03', 1, 2450.00, 2450.00),
-(4, 3, 4, 'Royal Kabli Panjabi - Maroon', 'PANJABI-MAROON-04', 1, 2800.00, 2800.00);
+(4, 3, 4, 'Royal Kabli Panjabi - Maroon', 'PANJABI-MAROON-04', 1, 2800.00, 2800.00),
+(10, 10, 4, 'Royal Kabli Panjabi - Maroon', 'PANJABI-MAROON-04', 1, 2800.00, 2800.00),
+(11, 11, 3, 'Floral Print Lawn Kameez Set', 'KAMEEZ-FLORAL-03', 1, 2450.00, 2450.00),
+(12, 12, 4, 'Royal Kabli Panjabi - Maroon', 'PANJABI-MAROON-04', 1, 2800.00, 2800.00);
 
 -- --------------------------------------------------------
 
@@ -279,6 +273,16 @@ CREATE TABLE `order_status_history` (
   `changed_by` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `order_status_history`
+--
+
+INSERT INTO `order_status_history` (`id`, `order_id`, `status`, `note`, `changed_by`, `created_at`) VALUES
+(1, 10, 'pending', 'Order placed by customer', NULL, '2026-10-22 19:10:14'),
+(2, 11, 'pending', 'Order placed by customer', NULL, '2026-10-22 20:31:13'),
+(3, 12, 'pending', 'Order placed by customer', NULL, '2026-10-22 20:31:43'),
+(4, 12, 'confirmed', 'Status updated in admin panel to Confirmed (Official Invoice sent to customer)', 1, '2026-10-22 20:32:31');
 
 -- --------------------------------------------------------
 
@@ -309,8 +313,8 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `description`, `price`, `compare_price`, `image_url`, `stock`, `active`, `created_at`, `updated_at`) VALUES
 (1, 1, 'Slim Fit Oxford Cotton Shirt - Navy', 'oxford-cotton-shirt-navy', 'SHIRT-NAVY-01', 'Premium 100% breathable cotton shirt suitable for casual and semi-formal wear.', 1450.00, 1850.00, 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=800', 25, 1, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
 (2, 1, 'Vintage Wash Denim Jeans', 'vintage-wash-denim-jeans', 'JEANS-DENIM-02', 'Durable stretch denim trousers with a classic 5-pocket cut.', 1890.00, 2200.00, 'https://images.unsplash.com/photo-1542272604-780c36856d62?w=800', 18, 1, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
-(3, 2, 'Floral Print Lawn Kameez Set', 'floral-print-lawn-kameez-set', 'KAMEEZ-FLORAL-03', 'Lightweight 3-piece printed lawn set with organza dupatta.', 2450.00, 2950.00, 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800', 12, 1, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
-(4, 3, 'Royal Kabli Panjabi - Maroon', 'royal-kabli-panjabi-maroon', 'PANJABI-MAROON-04', 'Traditional cotton viscose panjabi set with fine embroidery work.', 2800.00, 3200.00, 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800', 15, 1, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
+(3, 2, 'Floral Print Lawn Kameez Set', 'floral-print-lawn-kameez-set', 'KAMEEZ-FLORAL-03', 'Lightweight 3-piece printed lawn set with organza dupatta.', 2450.00, 2950.00, 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800', 11, 1, '2026-10-21 13:39:15', '2026-10-22 20:31:13'),
+(4, 3, 'Royal Kabli Panjabi - Maroon', 'royal-kabli-panjabi-maroon', 'PANJABI-MAROON-04', 'Traditional cotton viscose panjabi set with fine embroidery work.', 2800.00, 3200.00, 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800', 13, 1, '2026-10-21 13:39:15', '2026-10-22 20:31:43'),
 (5, 4, 'Handcrafted Leather Belt - Tan', 'handcrafted-leather-belt-tan', 'BELT-TAN-05', 'Genuine full-grain leather belt with antique brass buckle.', 850.00, 1100.00, 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=800', 40, 1, '2026-10-21 13:39:15', '2026-10-21 13:39:15');
 
 -- --------------------------------------------------------
@@ -342,6 +346,34 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `created_at`) VAL
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `shipping_cities`
+--
+
+CREATE TABLE `shipping_cities` (
+  `id` int(11) NOT NULL,
+  `city_name` varchar(100) NOT NULL,
+  `zone_code` enum('inside_dhaka','outside_dhaka') DEFAULT 'outside_dhaka',
+  `shipping_cost` decimal(10,2) NOT NULL DEFAULT 120.00,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `shipping_cities`
+--
+
+INSERT INTO `shipping_cities` (`id`, `city_name`, `zone_code`, `shipping_cost`, `created_at`) VALUES
+(1, 'Dhaka', 'inside_dhaka', 60.00, '2026-10-22 20:10:49'),
+(2, 'Chattogram', 'outside_dhaka', 120.00, '2026-10-22 20:10:49'),
+(3, 'Rajshahi', 'outside_dhaka', 120.00, '2026-10-22 20:10:49'),
+(4, 'Khulna', 'outside_dhaka', 120.00, '2026-10-22 20:10:49'),
+(5, 'Barishal', 'outside_dhaka', 120.00, '2026-10-22 20:10:49'),
+(6, 'Sylhet', 'outside_dhaka', 120.00, '2026-10-22 20:10:49'),
+(7, 'Rangpur', 'outside_dhaka', 120.00, '2026-10-22 20:10:49'),
+(8, 'Mymensingh', 'outside_dhaka', 120.00, '2026-10-22 20:10:49');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `site_settings`
 --
 
@@ -358,8 +390,29 @@ CREATE TABLE `site_settings` (
 INSERT INTO `site_settings` (`setting_key`, `setting_value`, `updated_at`) VALUES
 ('admin_email', 'hello.divers.almarez@gmail.com', '2026-10-20 17:53:38'),
 ('admin_notification_email', 'hello.divers.almarez@gmail.com', '2026-10-18 17:02:39'),
+('admin_notification_email_key', 'ADMIN_NOTIFICATION_EMAIL', '2026-10-22 20:44:41'),
 ('announcement', 'Test Header Announcement', '2026-10-19 19:36:37'),
+('app_debug', 'true', '2026-10-22 20:44:40'),
+('app_debug_key', 'APP_DEBUG', '2026-10-22 20:44:40'),
+('app_name', 'DiverseBD', '2026-10-22 20:44:40'),
+('app_name_key', 'APP_NAME', '2026-10-22 20:44:40'),
+('app_timezone', 'Asia/Dhaka', '2026-10-22 20:44:40'),
+('app_timezone_key', 'APP_TIMEZONE', '2026-10-22 20:44:40'),
+('app_url', 'http://localhost/diversebd/', '2026-10-22 20:44:40'),
+('app_url_key', 'APP_URL', '2026-10-22 20:44:40'),
+('currency', '৳', '2026-10-22 20:44:40'),
+('currency_key', 'CURRENCY', '2026-10-22 20:44:40'),
 ('currency_symbol', '৳', '2026-10-18 12:02:43'),
+('db_host', 'localhost', '2026-10-22 20:44:40'),
+('db_host_key', 'DB_HOST', '2026-10-22 20:44:40'),
+('db_name', 'diversebd', '2026-10-22 20:44:40'),
+('db_name_key', 'DB_NAME', '2026-10-22 20:44:40'),
+('db_pass', '', '2026-10-22 20:44:40'),
+('db_pass_key', 'DB_PASS', '2026-10-22 20:44:40'),
+('db_port', '3306', '2026-10-22 20:44:40'),
+('db_port_key', 'DB_PORT', '2026-10-22 20:44:40'),
+('db_user', 'root', '2026-10-22 20:44:40'),
+('db_user_key', 'DB_USER', '2026-10-22 20:44:40'),
 ('email_invoice_subject', 'Official Tax Invoice - Order #{order_number}', '2026-10-20 08:34:08'),
 ('email_order_placed_intro', 'We have received your order #{order_number}. Our team is reviewing the details and will confirm your order shortly.', '2026-10-20 08:33:26'),
 ('email_order_placed_subject', 'Order Received - #{order_number}', '2026-10-20 08:33:26'),
@@ -389,16 +442,26 @@ INSERT INTO `site_settings` (`setting_key`, `setting_value`, `updated_at`) VALUE
 ('invoice_footer_note', 'Thank you for shopping with us!555633', '2026-10-19 19:38:52'),
 ('logo_url', '', '2026-10-19 19:37:06'),
 ('mail_encryption', 'tls', '2026-10-18 17:14:14'),
+('mail_encryption_key', 'MAIL_ENCRYPTION', '2026-10-22 20:44:41'),
 ('mail_from_address', 'hello.divers.almarez@gmail.com', '2026-10-18 17:14:14'),
-('mail_from_name', 'DiverseBD Store', '2026-10-18 17:14:14'),
+('mail_from_address_key', 'MAIL_FROM_ADDRESS', '2026-10-22 20:44:41'),
+('mail_from_name', '\"DiverseBD Store\"', '2026-10-22 20:44:41'),
+('mail_from_name_key', 'MAIL_FROM_NAME', '2026-10-22 20:44:41'),
 ('mail_host', 'smtp.gmail.com', '2026-10-18 17:14:14'),
-('mail_password', 'hopw tezg rfvx njcu', '2026-10-18 17:14:14'),
+('mail_host_key', 'MAIL_HOST', '2026-10-22 20:44:40'),
+('mail_password', '\"mhsb jkly zwif dkig\"', '2026-10-22 20:44:41'),
+('mail_password_key', 'MAIL_PASSWORD', '2026-10-22 20:44:41'),
 ('mail_port', '587', '2026-10-18 17:14:14'),
+('mail_port_key', 'MAIL_PORT', '2026-10-22 20:44:41'),
 ('mail_username', 'hello.divers.almarez@gmail.com', '2026-10-18 17:14:14'),
+('mail_username_key', 'MAIL_USERNAME', '2026-10-22 20:44:41'),
+('maintenance_message', 'Our website is currently undergoing scheduled maintenance. We should be back online shortly. Thank you for your patience!', '2026-10-22 19:53:43'),
+('maintenance_mode', '0', '2026-10-22 19:58:44'),
+('maintenance_title', 'We’ll Be Right Back!', '2026-10-22 19:53:43'),
 ('max_admin_sessions', '1', '2026-10-20 17:49:54'),
 ('popup_button_text', 'Shop The Sale', '2026-10-21 20:46:01'),
 ('popup_button_url', 'index.php?category=new-arrivals#shop', '2026-10-21 20:46:01'),
-('popup_enabled', '1', '2026-10-21 20:46:01'),
+('popup_enabled', '1', '2026-10-22 19:09:18'),
 ('popup_image_url', 'uploads/popup_1792616715.jpg', '2026-10-21 21:05:15'),
 ('popup_message', 'Get up to 30% OFF on all new traditional & casual arrivals. Limited time offer!', '2026-10-21 20:46:01'),
 ('popup_title', '🎉 Mega Season Sale!', '2026-10-21 20:46:01'),
@@ -508,7 +571,9 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `phone`, `address`, `city`, `status`, `reset_token`, `reset_token_expires`, `created_at`, `updated_at`) VALUES
 (1, 'Tanvir Ahmed', 'tanvir.ahmed@example.com', '$2y$10$e84S3S7uN2lI0v9eW.oX0eTfL5/J9N6eM4vQ1sT3uV5wX7yZ9aB2c', '01711223344', 'House 45, Road 11, Block D, Banani', 'Dhaka', 'active', NULL, NULL, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
 (2, 'Nusrat Jahan', 'nusrat.jahan@example.com', '$2y$10$e84S3S7uN2lI0v9eW.oX0eTfL5/J9N6eM4vQ1sT3uV5wX7yZ9aB2c', '01811998877', 'Flat 4B, Green Road', 'Dhaka', 'active', NULL, NULL, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
-(3, 'Rahim Chowdhury', 'rahim.c@example.com', '$2y$10$e84S3S7uN2lI0v9eW.oX0eTfL5/J9N6eM4vQ1sT3uV5wX7yZ9aB2c', '01911445566', 'GEC Circle, Nasirabad', 'Chittagong', 'active', NULL, NULL, '2026-10-21 13:39:15', '2026-10-21 13:39:15');
+(3, 'Rahim Chowdhury', 'rahim.c@example.com', '$2y$10$e84S3S7uN2lI0v9eW.oX0eTfL5/J9N6eM4vQ1sT3uV5wX7yZ9aB2c', '01911445566', 'GEC Circle, Nasirabad', 'Chittagong', 'active', NULL, NULL, '2026-10-21 13:39:15', '2026-10-21 13:39:15'),
+(11, 'Ashraful Alam Shihab', 'alamshihab526@gmail.com', '$2y$10$N3EBRzltW8xeqY6Kj1CTZ.qWcgcQXyY9no3N1gsw5IOHOY/z6QJy6', '01982401992', 'Test Address', 'Dhaka', 'active', NULL, NULL, '2026-10-22 20:29:38', '2026-10-22 20:29:38'),
+(12, 'Ash', 'hello.ash.ge@gmail.com', '$2y$10$H0mpfHNPM8u.w.NKqdV.bOsYsZRqNL.OM6EnehXqTtnJIxx8k3NeO', '01982401992', 'Test Address', 'Dhaka', 'active', NULL, NULL, '2026-10-22 20:30:36', '2026-10-22 20:30:36');
 
 -- --------------------------------------------------------
 
@@ -590,7 +655,109 @@ INSERT INTO `visitor_logs` (`id`, `ip_address`, `page_url`, `user_agent`, `creat
 (59, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-21 21:11:28'),
 (60, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-21 21:11:32'),
 (61, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-21 21:13:00'),
-(62, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-21 21:13:03');
+(62, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-21 21:13:03'),
+(63, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-21 21:43:15'),
+(64, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:08:17'),
+(65, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:08:46'),
+(66, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:08:54'),
+(67, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:09:12'),
+(68, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:09:13'),
+(69, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:09:50'),
+(70, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:09:59'),
+(71, '::1', '/diversebd/account.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:09:59'),
+(72, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:10:02'),
+(73, '::1', '/diversebd/product.php?slug=royal-kabli-panjabi-maroon', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:10:04'),
+(74, '::1', '/diversebd/product.php?slug=royal-kabli-panjabi-maroon', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:10:07'),
+(75, '::1', '/diversebd/cart.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:10:07'),
+(76, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:10:10'),
+(77, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:10:14'),
+(78, '::1', '/diversebd/order-success.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:10:14'),
+(79, '::1', '/diversebd/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:50:50'),
+(80, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:58:47'),
+(81, '::1', '/diversebd/index.php?category=new-arrivals', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:58:51'),
+(82, '::1', '/diversebd/track-order.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 19:58:54'),
+(83, '::1', '/diversebd/track-order.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:00:16'),
+(84, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:00:19'),
+(85, '::1', '/diversebd/index.php?category=new-arrivals', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:00:22'),
+(86, '::1', '/diversebd/product.php?slug=vintage-wash-denim-jeans', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:00:28'),
+(87, '::1', '/diversebd/track-order.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:00:32'),
+(88, '::1', '/diversebd/contact.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:00:33'),
+(89, '::1', '/diversebd/index.php?category=new-arrivals', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:00:35'),
+(90, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:12:01'),
+(91, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:12:04'),
+(92, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:12:05'),
+(93, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:28:51'),
+(94, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:28:51'),
+(95, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:28:55'),
+(96, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:28:55'),
+(97, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:01'),
+(98, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:01'),
+(99, '::1', '/diversebd/account.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:01'),
+(100, '::1', '/diversebd/account.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:01'),
+(101, '::1', '/diversebd/user_logout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:07'),
+(102, '::1', '/diversebd/user_logout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:07'),
+(103, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:07'),
+(104, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:07'),
+(105, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:29'),
+(106, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:29'),
+(107, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:30'),
+(108, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:30'),
+(109, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:38'),
+(110, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:38'),
+(111, '::1', '/diversebd/account.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:44'),
+(112, '::1', '/diversebd/account.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:29:44'),
+(113, '::1', '/diversebd/user_logout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:12'),
+(114, '::1', '/diversebd/user_logout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:12'),
+(115, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:12'),
+(116, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:12'),
+(117, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:16'),
+(118, '::1', '/diversebd/user_login.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:16'),
+(119, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:17'),
+(120, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:17'),
+(121, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:36'),
+(122, '::1', '/diversebd/user_register.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:36'),
+(123, '::1', '/diversebd/account.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:43'),
+(124, '::1', '/diversebd/account.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:43'),
+(125, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:57'),
+(126, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:30:57'),
+(127, '::1', '/diversebd/product.php?slug=floral-print-lawn-kameez-set', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:02'),
+(128, '::1', '/diversebd/product.php?slug=floral-print-lawn-kameez-set', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:02'),
+(129, '::1', '/diversebd/product.php?slug=floral-print-lawn-kameez-set', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:04'),
+(130, '::1', '/diversebd/product.php?slug=floral-print-lawn-kameez-set', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:04'),
+(131, '::1', '/diversebd/cart.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:04'),
+(132, '::1', '/diversebd/cart.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:04'),
+(133, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:08'),
+(134, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:08'),
+(135, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:13'),
+(136, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:13'),
+(137, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:24'),
+(138, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:24'),
+(139, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:24'),
+(140, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:24'),
+(141, '::1', '/diversebd/cart.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:24'),
+(142, '::1', '/diversebd/cart.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:24'),
+(143, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:30'),
+(144, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:30'),
+(145, '::1', '/diversebd/product.php?slug=royal-kabli-panjabi-maroon', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:34'),
+(146, '::1', '/diversebd/product.php?slug=royal-kabli-panjabi-maroon', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:34'),
+(147, '::1', '/diversebd/product.php?slug=royal-kabli-panjabi-maroon', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:35'),
+(148, '::1', '/diversebd/product.php?slug=royal-kabli-panjabi-maroon', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:35'),
+(149, '::1', '/diversebd/cart.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:35'),
+(150, '::1', '/diversebd/cart.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:35'),
+(151, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:36'),
+(152, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:36'),
+(153, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:43'),
+(154, '::1', '/diversebd/checkout.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:43'),
+(155, '::1', '/diversebd/order-success.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:52'),
+(156, '::1', '/diversebd/order-success.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:31:52'),
+(157, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:32:04'),
+(158, '::1', '/diversebd/index.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:32:04'),
+(159, '::1', '/diversebd/index.php?sort=price_high', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:33:07'),
+(160, '::1', '/diversebd/index.php?sort=price_high', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:33:07'),
+(161, '::1', '/diversebd/track-order.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:33:12'),
+(162, '::1', '/diversebd/track-order.php', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:33:12'),
+(163, '::1', '/diversebd/track-order.php?order_number=DVBD26102357DDCD&contact=01982401992', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:33:27'),
+(164, '::1', '/diversebd/track-order.php?order_number=DVBD26102357DDCD&contact=01982401992', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', '2026-10-22 20:33:27');
 
 --
 -- Indexes for dumped tables
@@ -695,6 +862,13 @@ ALTER TABLE `product_images`
   ADD KEY `fk_product_images_product` (`product_id`);
 
 --
+-- Indexes for table `shipping_cities`
+--
+ALTER TABLE `shipping_cities`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `city_name` (`city_name`);
+
+--
 -- Indexes for table `site_settings`
 --
 ALTER TABLE `site_settings`
@@ -748,7 +922,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `admin_login_logs`
 --
 ALTER TABLE `admin_login_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `api_keys`
@@ -784,19 +958,19 @@ ALTER TABLE `hero_slides`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -809,6 +983,12 @@ ALTER TABLE `products`
 --
 ALTER TABLE `product_images`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `shipping_cities`
+--
+ALTER TABLE `shipping_cities`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `social_links`
@@ -832,13 +1012,13 @@ ALTER TABLE `testimonials`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `visitor_logs`
 --
 ALTER TABLE `visitor_logs`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=165;
 
 --
 -- Constraints for dumped tables
