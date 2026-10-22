@@ -1,8 +1,14 @@
-# Protect .env file from public access
-<Files .env>
+# Protect .env and backup files from public web access
+
+<FilesMatch "^\.env|\.env\.backup$">
 Order allow,deny
 Deny from all
-</Files>
+</FilesMatch>
 
 # Ensure default index page loads properly
+
 DirectoryIndex index.php
+
+# Prevent directory listing
+
+Options -Indexes

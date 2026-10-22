@@ -1,5 +1,4 @@
-<?php
-require_once __DIR__ . '/_init.php';
+<?php require_once __DIR__ . '/_init.php';
 admin_required();
 
 $title = 'Admin Security, RBAC & Active Sessions';
@@ -20,6 +19,7 @@ $availablePermissions = [
     'slides'     => 'Hero Banner Slides',
     'social'     => 'Social Media Feed',
     'reviews'    => 'Customer Reviews',
+    'env'        => '.ENV Configuration Manager',
 ];
 
 // Helper Function to Parse Browser & Device Type from User Agent
@@ -40,6 +40,36 @@ function parse_user_agent(?string $ua): array
     elseif (str_contains($ua, 'OPR') || str_contains($ua, 'Opera')) $browser = 'Opera';
 
     return ['browser' => $browser, 'device' => $device];
+}
+
+// CSV Audit Log Export Handler
+if (isset($_GET['export']) && $_GET['export'] === 'login_logs') {
+    if (!is_super_admin()) {
+        flash('error', 'Action denied: Only Super Admins can export security logs.');
+        redirect('manage_portal_x92/security.php');
+    }
+
+    $filename = 'login-audit-logs-' . date('Y-m-d-His') . '.csv';
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['Log ID', 'Status', 'Email Attempted', 'IP Address', 'Device & Browser', 'Timestamp']);
+
+    $logsStmt = $db->query('SELECT id, status, email_attempted, ip_address, user_agent, created_at FROM admin_login_logs ORDER BY id DESC');
+    while ($row = $logsStmt->fetch(PDO::FETCH_ASSOC)) {
+        $uaInfo = parse_user_agent($row['user_agent']);
+        fputcsv($out, [
+            $row['id'],
+            strtoupper($row['status']),
+            $row['email_attempted'],
+            $row['ip_address'],
+            $uaInfo['device'] . ' - ' . $uaInfo['browser'],
+            $row['created_at']
+        ]);
+    }
+    fclose($out);
+    exit;
 }
 
 // Handle Form Actions
@@ -219,17 +249,30 @@ $sessions = $db->query('
     ORDER BY s.last_activity DESC
 ')->fetchAll();
 
-// Fetch Recent Login Attempts
+// --- AUDIT LOG PAGINATION LOGIC ---
+$logPage   = max(1, (int)($_GET['log_page'] ?? 1));
+$perPage   = 15;
+$totalLogs = 0;
 $loginLogs = [];
+
 try {
-    $loginLogs = $db->query('
+    $totalLogs  = (int)$db->query('SELECT COUNT(*) FROM admin_login_logs')->fetchColumn();
+    $totalPages = max(1, (int)ceil($totalLogs / $perPage));
+    if ($logPage > $totalPages) $logPage = $totalPages;
+    $offset     = ($logPage - 1) * $perPage;
+
+    $stLog = $db->prepare('
         SELECT id, admin_id, email_attempted, ip_address, user_agent, status, created_at 
         FROM admin_login_logs 
         ORDER BY id DESC 
-        LIMIT 25
-    ')->fetchAll();
+        LIMIT ? OFFSET ?
+    ');
+    $stLog->bindValue(1, $perPage, PDO::PARAM_INT);
+    $stLog->bindValue(2, $offset, PDO::PARAM_INT);
+    $stLog->execute();
+    $loginLogs = $stLog->fetchAll();
 } catch (Throwable $e) {
-    // Graceful fallback
+    $totalPages = 1;
 }
 
 $editingAdminId = (int)($_GET['edit'] ?? 0);
@@ -305,21 +348,25 @@ $currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
     </table>
 </div>
 
-<!-- Section 2: Login Attempt Audit Logs (Failed & Successful) -->
-<div class="panel" style="margin-bottom:25px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+<!-- Section 2: Login Attempt Audit Logs with Pagination & Export -->
+<div class="panel" id="audit-log" style="margin-bottom:25px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
         <div>
-            <h2 style="margin:0;">Login Attempt Audit Log</h2>
+            <h2 style="margin:0;">Login Attempt Audit Log (<?= number_format($totalLogs) ?> total)</h2>
             <p class="muted small" style="margin:4px 0 0 0;">
                 Tracks all successful and failed admin sign-in attempts with device detection & IP Geolocation lookups.
             </p>
         </div>
-        <?php if (is_super_admin() && !empty($loginLogs)): ?>
-            <form method="post" onsubmit="return confirm('Purge all login audit logs?');">
-                <?= csrf_field() ?>
-                <input type="hidden" name="action" value="clear_logs">
-                <button class="button secondary" style="padding:5px 12px; font-size:12px;">Clear Audit Log</button>
-            </form>
+
+        <?php if (is_super_admin() && !empty($totalLogs)): ?>
+            <div style="display:flex; gap:8px;">
+                <a class="button secondary" style="padding:5px 12px; font-size:12px;" href="?export=login_logs">📥 Export CSV</a>
+                <form method="post" onsubmit="return confirm('Purge all login audit logs?');" style="margin:0;">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="clear_logs">
+                    <button class="button secondary" style="padding:5px 12px; font-size:12px; background:#fde8e8; color:#e74c3c;">Clear Audit Log</button>
+                </form>
+            </div>
         <?php endif; ?>
     </div>
 
@@ -373,6 +420,24 @@ $currentMaxSessions = (int)site_setting('max_admin_sessions', '2');
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <!-- Log Pagination Controls -->
+        <?php if ($totalPages > 1): ?>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:12px; border-top:1px solid #eee;">
+                <span class="small muted">
+                    Showing Page <b><?= $logPage ?></b> of <b><?= $totalPages ?></b>
+                </span>
+                <div style="display:flex; gap:6px;">
+                    <?php if ($logPage > 1): ?>
+                        <a href="?log_page=<?= $logPage - 1 ?>#audit-log" class="button secondary" style="padding:4px 10px; font-size:12px;">← Previous</a>
+                    <?php endif; ?>
+
+                    <?php if ($logPage < $totalPages): ?>
+                        <a href="?log_page=<?= $logPage + 1 ?>#audit-log" class="button secondary" style="padding:4px 10px; font-size:12px;">Next →</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 
