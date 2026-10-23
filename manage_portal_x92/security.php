@@ -1,9 +1,6 @@
 <?php require_once __DIR__ . '/_init.php';
 admin_required();
 
-$title = 'Admin Security, RBAC & Active Sessions';
-$db = db();
-
 // Available Modules for Permission Assignment
 $availablePermissions = [
     'analytics'  => 'Traffic & Sales Analytics',
@@ -20,7 +17,14 @@ $availablePermissions = [
     'social'     => 'Social Media Feed',
     'reviews'    => 'Customer Reviews',
     'env'        => '.ENV Configuration Manager',
+    'security'   => 'Admin Accounts & RBAC Security',
 ];
+
+// Enforce permission guard (Super Admins bypass automatically, staff need 'security' checked)
+require_permission('security');
+
+$title = 'Admin Security, RBAC & Active Sessions';
+$db = db();
 
 // Helper Function to Parse Browser & Device Type from User Agent
 function parse_user_agent(?string $ua): array

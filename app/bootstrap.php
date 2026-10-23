@@ -711,12 +711,14 @@ if (!function_exists('require_permission')) {
 if (!function_exists('sync_htpasswd_user')) {
     function sync_htpasswd_user(string $username, string $plainPassword): bool
     {
-        $htpasswdPath = __DIR__ . '/../manage_portal_x92/.htpasswd';
+        $htpasswdPath = dirname(__DIR__) . '/manage_portal_x92/.htpasswd';
+
+        // Auto-create file if it does not exist
         if (!file_exists($htpasswdPath)) {
-            return false;
+            @touch($htpasswdPath);
         }
 
-        $lines = file($htpasswdPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $lines = file_exists($htpasswdPath) ? file($htpasswdPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
         $updatedLines = [];
         $userFound = false;
 
